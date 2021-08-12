@@ -30,28 +30,30 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final Storage _storage = Storage();
-  int _counter = 0;
+  String _fileContent = "";
 
   Future<File> _increase() async {
-    setState(() => _counter++);
-    return _storage.writeCounter(_counter);
+    setState(() => _fileContent += DateTime.now().toString() + "\n");
+    return _storage.writeData(_fileContent);
   }
 
-  Future<File> _decrease() async {
-    if (_counter > 0) {
-      setState(() => _counter--);
-      return _storage.writeCounter(_counter);
-    } else {
-      return null;
-    }
+  void _decrease() async {
+    _storage.readData().then((value) {
+      setState(() {
+        if (value != null && value.length > 0) {
+          _fileContent = "";
+          for (var line in value) {
+            _fileContent += line + "\n";
+          }
+        }
+      });
+    });
   }
 
   @override
   void initState() {
     super.initState();
-    _storage.readCounter().then((value) {
-      setState(() => _counter = value);
-    });
+    _decrease();
   }
 
   @override
@@ -65,11 +67,12 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'You have pushed the button this many times:',
+              'File Content:',
             ),
             Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
+              '$_fileContent',
+              maxLines: 20,
+              style: Theme.of(context).textTheme.bodyText2,
             ),
           ],
         ),

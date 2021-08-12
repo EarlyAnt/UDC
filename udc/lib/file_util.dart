@@ -31,4 +31,22 @@ class Storage {
 
     return file.writeAsString('$counter');
   }
+
+  Future<List<String>> readData() async {
+    try {
+      final file = await _localFile;
+
+      var contents = await file.readAsLines();
+
+      return contents;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<File> writeData(data) async {
+    final file = await _localFile;
+
+    return file.writeAsString('$data');
+  }
 }
