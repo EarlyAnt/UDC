@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'image_toggle.dart';
+import 'pop_button.dart';
 import 'text_toggle.dart';
 import 'ui_data.dart';
 
@@ -10,7 +12,10 @@ class Collector extends StatefulWidget {
 }
 
 class _CollectorState extends State<Collector> {
-  final List<String> _customerSexOptions = ["男", "女"];
+  final List<ImageButtonData> _customerSexOptions = [
+    ImageButtonData("男", "male"),
+    ImageButtonData("女", "female")
+  ];
   final List<ImageButtonData> _peopleNumberOptions = [
     ImageButtonData("1人", "father_son"),
     ImageButtonData("父子", "more"),
@@ -37,10 +42,17 @@ class _CollectorState extends State<Collector> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+
     return Scaffold(
       body: Stack(
         children: [
-          Center(child: Image.asset("assets/images/ui/water_mark.png")),
+          Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Center(
+                  child: Image.asset("assets/images/ui/water_mark.png"))),
           Column(
             children: [
               Column(
@@ -61,6 +73,13 @@ class _CollectorState extends State<Collector> {
                 ],
               ),
             ],
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: 0, right: 0),
+              child: _submit(),
+            ),
           ),
         ],
       ),
@@ -112,9 +131,27 @@ class _CollectorState extends State<Collector> {
               Text("提交", style: TextStyle(color: Colors.white)),
             ],
           ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: 0, right: 135),
+              child: _sex(),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _sex() {
+    return Container(
+        // color: Colors.green,
+        child: ImageToggle(_customerSexOptions, 46, 44,
+            unselectedWidthDiff: 10,
+            unselectedHeightDiff: 10,
+            splitWidth: 15,
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center));
   }
 
   Widget _peopleNumber() {
@@ -123,10 +160,10 @@ class _CollectorState extends State<Collector> {
         Container(
             width: double.infinity,
             child: Text("到店家庭",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: ImageToggle(_peopleNumberOptions)),
+            child: ImageToggle(_peopleNumberOptions, 150, 45)),
       ],
     );
   }
@@ -137,7 +174,7 @@ class _CollectorState extends State<Collector> {
         Container(
             width: double.infinity,
             child: Text("用户客层",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
             child: TextToggle(_customerAgeOptions)),
@@ -151,7 +188,7 @@ class _CollectorState extends State<Collector> {
         Container(
             width: double.infinity,
             child: Text("消费区间",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
             child: TextToggle(_expenseOptions)),
@@ -165,11 +202,20 @@ class _CollectorState extends State<Collector> {
         Container(
             width: double.infinity,
             child: Text("客户标签",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
             child: TextToggle(_customerTagOptions)),
       ],
+    );
+  }
+
+  Widget _submit() {
+    return Container(
+      width: 112,
+      height: 64,
+      child: PopButton("assets/images/ui/submit_selected.png",
+          "assets/images/ui/submit_unselected.png"),
     );
   }
 }
