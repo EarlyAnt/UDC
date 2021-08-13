@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:udc/ImageToggle.dart';
+
+import 'image_toggle.dart';
+import 'text_toggle.dart';
+import 'ui_data.dart';
 
 class Collector extends StatefulWidget {
   @override
@@ -14,9 +17,23 @@ class _CollectorState extends State<Collector> {
     ImageButtonData("母子", "father_son"),
     ImageButtonData("3+", "more")
   ];
-  final List<String> _customerAgeOptions = ["3-6岁", "7-14岁", "15岁+"];
-  final List<String> _expenseOptions = ["1-50", "51-100", "101-200", "200+"];
-  final List<String> _customerTagOptions = ["A", "B", "C", "D"];
+  final List<TextButtonData> _customerAgeOptions = [
+    TextButtonData("3-6岁", "3-6岁"),
+    TextButtonData("7-14岁", "7-14岁"),
+    TextButtonData("15岁+", "15岁+")
+  ];
+  final List<TextButtonData> _expenseOptions = [
+    TextButtonData("1-50", "1-50"),
+    TextButtonData("51-100", "51-100"),
+    TextButtonData("101-200", "101-200"),
+    TextButtonData("200+", "200+")
+  ];
+  final List<TextButtonData> _customerTagOptions = [
+    TextButtonData("A", "A"),
+    TextButtonData("B", "B"),
+    TextButtonData("C", "C"),
+    TextButtonData("D", "D")
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +49,15 @@ class _CollectorState extends State<Collector> {
                   Padding(
                       padding: EdgeInsets.only(top: 10, left: 10, right: 10),
                       child: _peopleNumber()),
-                  _customerAge(),
-                  _expense(),
-                  _customerTag(),
+                  Padding(
+                      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
+                      child: _customerAge()),
+                  Padding(
+                      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
+                      child: _expense()),
+                  Padding(
+                      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
+                      child: _customerTag()),
                 ],
               ),
             ],
@@ -106,54 +129,47 @@ class _CollectorState extends State<Collector> {
             child: ImageToggle(_peopleNumberOptions)),
       ],
     );
-    return ImageToggle(_peopleNumberOptions);
   }
 
   Widget _customerAge() {
-    return Row(
-        children: _customerAgeOptions
-            .map((e) => TextButton(
-                onPressed: () {
-                  print("button [$e] pressed");
-                },
-                child: Text(e)))
-            .toList());
+    return Column(
+      children: [
+        Container(
+            width: double.infinity,
+            child: Text("用户客层",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+        Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: TextToggle(_customerAgeOptions)),
+      ],
+    );
   }
 
   Widget _expense() {
-    return Row(
-        children: _expenseOptions
-            .map((e) => TextButton(
-                onPressed: () {
-                  print("button [$e] pressed");
-                },
-                child: Text(e)))
-            .toList());
+    return Column(
+      children: [
+        Container(
+            width: double.infinity,
+            child: Text("消费区间",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+        Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: TextToggle(_expenseOptions)),
+      ],
+    );
   }
 
   Widget _customerTag() {
-    return Row(
-        children: _customerTagOptions
-            .map((e) => TextButton(
-                onPressed: () {
-                  print("button [$e] pressed");
-                },
-                child: Text(e)))
-            .toList());
+    return Column(
+      children: [
+        Container(
+            width: double.infinity,
+            child: Text("客户标签",
+                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold))),
+        Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: TextToggle(_customerTagOptions)),
+      ],
+    );
   }
-}
-
-abstract class BaseButtonData {
-  String value;
-  BaseButtonData(this.value);
-}
-
-class TextButtonData extends BaseButtonData {
-  String text;
-  TextButtonData(value, this.text) : super(value);
-}
-
-class ImageButtonData extends BaseButtonData {
-  String imagPath;
-  ImageButtonData(value, this.imagPath) : super(value);
 }

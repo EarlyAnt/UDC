@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'collector.dart';
+import 'ui_data.dart';
 
 class ImageToggle extends StatefulWidget {
   final List<ImageButtonData> buttonDatas;
@@ -25,10 +25,16 @@ class _ImageToggleState extends State<ImageToggle> {
     return Container(
       child: Row(
         mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: widget.buttonDatas
-            .map((e) => ImageButton(e.value, e.imagPath,
-                e.value == _selectedValue, _onButtonPressed))
+            .map((e) => Row(children: [
+                  ImageButton(e.value, e.imagPath, e.value == _selectedValue,
+                      _onButtonPressed),
+                  Visibility(
+                      visible: widget.buttonDatas.indexOf(e) <
+                          widget.buttonDatas.length - 1,
+                      child: SizedBox(width: 60)),
+                ]))
             .toList(),
       ),
     );
@@ -37,7 +43,7 @@ class _ImageToggleState extends State<ImageToggle> {
   void _onButtonPressed(String value) {
     setState(() {
       _selectedValue = value;
-      print("$_selectedValue");
+      print("image button [$_selectedValue] pressed");
     });
   }
 }
