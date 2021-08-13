@@ -4,8 +4,12 @@ import 'ui_data.dart';
 
 class TextToggle extends StatefulWidget {
   final List<TextButtonData> buttonDatas;
+  final int defaultItemIndex;
+  final Function(String) onValueChanged;
 
-  TextToggle(this.buttonDatas, {Key key}) : super(key: key);
+  TextToggle(this.buttonDatas, this.onValueChanged,
+      {Key key, this.defaultItemIndex = 0})
+      : super(key: key);
 
   @override
   _TextToggleState createState() => _TextToggleState();
@@ -17,7 +21,12 @@ class _TextToggleState extends State<TextToggle> {
   @override
   void initState() {
     super.initState();
-    _selectedValue = widget.buttonDatas[0].value;
+    _selectedValue = widget.buttonDatas != null &&
+            widget.defaultItemIndex >= 0 &&
+            widget.defaultItemIndex < widget.buttonDatas.length
+        ? widget.buttonDatas[widget.defaultItemIndex].value
+        : "";
+    _onValueChanged();
   }
 
   @override
@@ -43,8 +52,17 @@ class _TextToggleState extends State<TextToggle> {
   void _onButtonPressed(String value) {
     setState(() {
       _selectedValue = value;
+      _onValueChanged();
       print("text button [$_selectedValue] pressed");
     });
+  }
+
+  void _onValueChanged() {
+    if (_selectedValue != null &&
+        _selectedValue.trim() != null &&
+        widget.onValueChanged != null) {
+      widget.onValueChanged(_selectedValue);
+    }
   }
 }
 

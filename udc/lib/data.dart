@@ -1,4 +1,4 @@
-class userData {
+class UserData {
   String customerSex;
   String peopleNumber;
   String customerAge;

@@ -11,14 +11,18 @@ class ImageToggle extends StatefulWidget {
   final double splitWidth;
   final MainAxisSize mainAxisSize;
   final MainAxisAlignment mainAxisAlignment;
+  final int defaultItemIndex;
+  final Function(String) onValueChanged;
 
   ImageToggle(this.buttonDatas, this.buttonWidth, this.buttonHeight,
+      this.onValueChanged,
       {Key key,
       this.unselectedWidthDiff = 0,
       this.unselectedHeightDiff = 0,
       this.splitWidth = 60,
       this.mainAxisSize = MainAxisSize.max,
-      this.mainAxisAlignment = MainAxisAlignment.start})
+      this.mainAxisAlignment = MainAxisAlignment.start,
+      this.defaultItemIndex = 0})
       : super(key: key);
 
   @override
@@ -31,7 +35,12 @@ class _ImageToggleState extends State<ImageToggle> {
   @override
   void initState() {
     super.initState();
-    _selectedValue = widget.buttonDatas[0].value;
+    _selectedValue = widget.buttonDatas != null &&
+            widget.defaultItemIndex >= 0 &&
+            widget.defaultItemIndex < widget.buttonDatas.length
+        ? widget.buttonDatas[widget.defaultItemIndex].value
+        : "";
+    _onValueChanged();
   }
 
   @override
@@ -65,8 +74,17 @@ class _ImageToggleState extends State<ImageToggle> {
   void _onButtonPressed(String value) {
     setState(() {
       _selectedValue = value;
+      _onValueChanged();
       print("image button [$_selectedValue] pressed");
     });
+  }
+
+  void _onValueChanged() {
+    if (_selectedValue != null &&
+        _selectedValue.trim() != null &&
+        widget.onValueChanged != null) {
+      widget.onValueChanged(_selectedValue);
+    }
   }
 }
 

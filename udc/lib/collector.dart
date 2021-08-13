@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:udc/data.dart';
 
 import 'image_toggle.dart';
 import 'pop_button.dart';
@@ -18,8 +19,8 @@ class _CollectorState extends State<Collector> {
   ];
   final List<ImageButtonData> _peopleNumberOptions = [
     ImageButtonData("1人", "father_son"),
-    ImageButtonData("父子", "more"),
     ImageButtonData("母子", "father_son"),
+    ImageButtonData("父子", "more"),
     ImageButtonData("3+", "more")
   ];
   final List<TextButtonData> _customerAgeOptions = [
@@ -39,6 +40,7 @@ class _CollectorState extends State<Collector> {
     TextButtonData("C", "C"),
     TextButtonData("D", "D")
   ];
+  UserData _userData = UserData();
 
   @override
   Widget build(BuildContext context) {
@@ -146,7 +148,9 @@ class _CollectorState extends State<Collector> {
   Widget _sex() {
     return Container(
         // color: Colors.green,
-        child: ImageToggle(_customerSexOptions, 46, 44,
+        child: ImageToggle(_customerSexOptions, 46, 44, (value) {
+      _userData.customerSex = value;
+    },
             unselectedWidthDiff: 10,
             unselectedHeightDiff: 10,
             splitWidth: 15,
@@ -163,7 +167,9 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: ImageToggle(_peopleNumberOptions, 150, 45)),
+            child: ImageToggle(_peopleNumberOptions, 150, 45, (value) {
+              _userData.peopleNumber = value;
+            }, defaultItemIndex: 1)),
       ],
     );
   }
@@ -177,7 +183,9 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_customerAgeOptions)),
+            child: TextToggle(_customerAgeOptions, (value) {
+              _userData.customerAge = value;
+            }, defaultItemIndex: 1)),
       ],
     );
   }
@@ -191,7 +199,9 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_expenseOptions)),
+            child: TextToggle(_expenseOptions, (value) {
+              _userData.expense = value;
+            }, defaultItemIndex: 2)),
       ],
     );
   }
@@ -205,7 +215,9 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_customerTagOptions)),
+            child: TextToggle(_customerTagOptions, (value) {
+              _userData.customerTag = value;
+            }, defaultItemIndex: 1)),
       ],
     );
   }
@@ -215,7 +227,10 @@ class _CollectorState extends State<Collector> {
       width: 112,
       height: 64,
       child: PopButton("assets/images/ui/submit_selected.png",
-          "assets/images/ui/submit_unselected.png"),
+          "assets/images/ui/submit_unselected.png", onPressed: () {
+        print(
+            "${_userData.customerSex}, ${_userData.peopleNumber}, ${_userData.customerAge}, ${_userData.expense}, ${_userData.customerTag}");
+      }),
     );
   }
 }
