@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:path_provider/path_provider.dart';
@@ -12,7 +13,7 @@ class Storage {
     final path = await _localPath;
 
     return File(
-        '$path/user_data_${DateTime.now().toString().substring(0, 10)}.txt');
+        '$path/user_data_${DateTime.now().toString().substring(0, 10)}.csv');
   }
 
   Future<bool> fileExists() async {
@@ -58,10 +59,10 @@ class Storage {
     }
   }
 
-  Future<File> writeData(data) async {
+  Future<File> writeData(String data) async {
     try {
       var file = await _localFile;
-      return file.writeAsString('$data');
+      return file.writeAsString(data);
     } catch (e) {
       return null;
     }
