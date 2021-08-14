@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:udc/data.dart';
 
+import 'file_util.dart';
 import 'image_toggle.dart';
 import 'pop_button.dart';
 import 'text_toggle.dart';
@@ -13,17 +16,17 @@ class Collector extends StatefulWidget {
 }
 
 class _CollectorState extends State<Collector> {
-  final List<ImageButtonData> _customerSexOptions = [
+  final List<ImageButtonData> _sexOptions = [
     ImageButtonData("男", "male"),
     ImageButtonData("女", "female")
   ];
-  final List<ImageButtonData> _peopleNumberOptions = [
+  final List<ImageButtonData> _familyOptions = [
     ImageButtonData("1人", "father_son"),
     ImageButtonData("母子", "father_son"),
     ImageButtonData("父子", "more"),
     ImageButtonData("3+", "more")
   ];
-  final List<TextButtonData> _customerAgeOptions = [
+  final List<TextButtonData> _ageOptions = [
     TextButtonData("3-6岁", "3-6岁"),
     TextButtonData("7-14岁", "7-14岁"),
     TextButtonData("15岁+", "15岁+"),
@@ -35,13 +38,22 @@ class _CollectorState extends State<Collector> {
     TextButtonData("101-200", "101-200"),
     TextButtonData("200+", "200+")
   ];
-  final List<TextButtonData> _customerTagOptions = [
+  final List<TextButtonData> _tagOptions = [
     TextButtonData("A", "A"),
     TextButtonData("B", "B"),
     TextButtonData("C", "C"),
     TextButtonData("D", "D")
   ];
   UserData _userData = UserData();
+  List<String> _userDataList = [];
+  Storage _storage = Storage();
+  int get _userCount => _userDataList != null ? _userDataList.length : 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _readData();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,27 +73,20 @@ class _CollectorState extends State<Collector> {
               padding: EdgeInsets.only(top: 58),
               child: Column(
                 children: [
-                  Container(
-                    // color: Colors.green,
-                    child: Column(children: [
-                      Padding(
-                          padding:
-                              EdgeInsets.only(top: 10, left: 15, right: 15),
-                          child: _peopleNumber()),
-                      Padding(
-                          padding:
-                              EdgeInsets.only(top: 10, left: 15, right: 15),
-                          child: _customerAge()),
-                      Padding(
-                          padding:
-                              EdgeInsets.only(top: 10, left: 15, right: 15),
-                          child: _expense()),
-                      Padding(
-                          padding:
-                              EdgeInsets.only(top: 10, left: 15, right: 15),
-                          child: _customerTag()),
-                    ]),
-                  ),
+                  Column(children: [
+                    Padding(
+                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        child: _family()),
+                    Padding(
+                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        child: _age()),
+                    Padding(
+                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        child: _expense()),
+                    Padding(
+                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        child: _tag()),
+                  ]),
                 ],
               ),
             ),
@@ -130,7 +135,7 @@ class _CollectorState extends State<Collector> {
                     SizedBox(width: 10),
                     Column(children: [
                       Text(
-                        "81",
+                        "$_userCount",
                         style: TextStyle(
                             color: Colors.yellow,
                             fontSize: 32,
@@ -158,8 +163,8 @@ class _CollectorState extends State<Collector> {
   Widget _sex() {
     return Container(
         // color: Colors.green,
-        child: ImageToggle(_customerSexOptions, 46, 44, (value) {
-      _userData.customerSex = value;
+        child: ImageToggle(_sexOptions, 46, 44, (value) {
+      _userData.sex = value;
     },
             unselectedWidthDiff: 10,
             unselectedHeightDiff: 10,
@@ -168,7 +173,7 @@ class _CollectorState extends State<Collector> {
             mainAxisAlignment: MainAxisAlignment.center));
   }
 
-  Widget _peopleNumber() {
+  Widget _family() {
     return Column(
       children: [
         Container(
@@ -177,8 +182,8 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: ImageToggle(_peopleNumberOptions, 150, 45, (value) {
-              _userData.peopleNumber = value;
+            child: ImageToggle(_familyOptions, 150, 45, (value) {
+              _userData.family = value;
             },
                 defaultItemIndex: 1,
                 splitWidth: 0,
@@ -187,7 +192,7 @@ class _CollectorState extends State<Collector> {
     );
   }
 
-  Widget _customerAge() {
+  Widget _age() {
     return Column(
       children: [
         Container(
@@ -196,8 +201,8 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_customerAgeOptions, 150, 45, (value) {
-              _userData.customerAge = value;
+            child: TextToggle(_ageOptions, 150, 45, (value) {
+              _userData.age = value;
             },
                 defaultItemIndex: 1,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween)),
@@ -223,7 +228,7 @@ class _CollectorState extends State<Collector> {
     );
   }
 
-  Widget _customerTag() {
+  Widget _tag() {
     return Column(
       children: [
         Container(
@@ -232,8 +237,8 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_customerTagOptions, 150, 45, (value) {
-              _userData.customerTag = value;
+            child: TextToggle(_tagOptions, 150, 45, (value) {
+              _userData.tag = value;
             },
                 defaultItemIndex: 1,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween)),
@@ -247,9 +252,40 @@ class _CollectorState extends State<Collector> {
       height: 64,
       child: PopButton("assets/images/ui/submit_selected.png",
           "assets/images/ui/submit_unselected.png", onPressed: () {
-        print(
-            "${_userData.customerSex}, ${_userData.peopleNumber}, ${_userData.customerAge}, ${_userData.expense}, ${_userData.customerTag}");
+        setState(() {
+          _saveData();
+        });
       }),
     );
+  }
+
+  Future<File> _saveData() async {
+    _storage.fileExists().then((value) {
+      if (!value) {
+        _storage.writeData("date,time,id,sex,family,age,expense,tag");
+      }
+
+      if (_userDataList == null) {
+        _userDataList = [];
+      }
+      _userData.id = _userCount + 1;
+      _userDataList.add("${_userData.toString()}\n");
+
+      String fileCountent = "";
+      for (var line in _userDataList) {
+        fileCountent += "$line\n";
+      }
+      _storage.writeData(fileCountent);
+      print("${_userData.toString()}");
+    });
+    return null;
+  }
+
+  void _readData() async {
+    _storage.readData().then((value) {
+      setState(() {
+        _userDataList = value;
+      });
+    });
   }
 }

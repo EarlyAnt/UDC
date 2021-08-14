@@ -4,14 +4,24 @@ import 'package:path_provider/path_provider.dart';
 
 class Storage {
   Future<String> get _localPath async {
-    final _path = await getTemporaryDirectory();
-    return _path.path;
+    final _directory = await getExternalStorageDirectory();
+    return _directory.path;
   }
 
   Future<File> get _localFile async {
     final path = await _localPath;
 
-    return File('$path/counter.txt');
+    return File(
+        '$path/user_data_${DateTime.now().toString().substring(0, 10)}.txt');
+  }
+
+  Future<bool> fileExists() async {
+    try {
+      final file = await _localFile;
+      return file.exists();
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<int> readCounter() async {
@@ -34,19 +44,32 @@ class Storage {
 
   Future<List<String>> readData() async {
     try {
-      final file = await _localFile;
+      var file = await _localFile;
+      var fileExists = await file.exists();
 
-      var contents = await file.readAsLines();
-
-      return contents;
+      if (fileExists) {
+        var contents = await file.readAsLines();
+        return contents;
+      } else {
+        return [];
+      }
     } catch (e) {
       return null;
     }
   }
 
   Future<File> writeData(data) async {
-    final file = await _localFile;
+    try {
+      var file = await _localFile;
+      var fileExists = await file.exists();
 
-    return file.writeAsString('$data');
+      if (fileExists) {
+        return file.writeAsString('$data');
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
   }
 }
