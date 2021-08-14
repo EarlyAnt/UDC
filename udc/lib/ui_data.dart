@@ -1,14 +1,19 @@
+import 'package:flutter/cupertino.dart';
+
 abstract class BaseButtonData {
   String value;
-  BaseButtonData(this.value);
+  bool placeholder;
+  BaseButtonData(this.value, this.placeholder);
 }
 
 class TextButtonData extends BaseButtonData {
   String text;
-  TextButtonData(value, this.text) : super(value);
+  TextButtonData(value, this.text, {placeholder = false})
+      : super(value, placeholder);
 }
 
 class ImageButtonData extends BaseButtonData {
   String imagPath;
-  ImageButtonData(value, this.imagPath) : super(value);
+  ImageButtonData(value, this.imagPath, {placeholder = false})
+      : super(value, placeholder);
 }

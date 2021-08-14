@@ -26,7 +26,8 @@ class _CollectorState extends State<Collector> {
   final List<TextButtonData> _customerAgeOptions = [
     TextButtonData("3-6岁", "3-6岁"),
     TextButtonData("7-14岁", "7-14岁"),
-    TextButtonData("15岁+", "15岁+")
+    TextButtonData("15岁+", "15岁+"),
+    TextButtonData("", "", placeholder: true)
   ];
   final List<TextButtonData> _expenseOptions = [
     TextButtonData("1-50", "1-50"),
@@ -49,41 +50,50 @@ class _CollectorState extends State<Collector> {
     SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Padding(
-              padding: EdgeInsets.symmetric(horizontal: 5),
-              child: Center(
-                  child: Image.asset("assets/images/ui/water_mark.png"))),
-          Column(
-            children: [
-              Column(
+      body: SingleChildScrollView(
+        child: Stack(
+          children: [
+            Padding(
+                padding: EdgeInsets.only(top: 130, left: 10, right: 10),
+                child: Image.asset("assets/images/ui/water_mark.png")),
+            Align(alignment: Alignment.topCenter, child: _titleBar()),
+            Padding(
+              padding: EdgeInsets.only(top: 58),
+              child: Column(
                 children: [
-                  _titleBar(),
-                  Padding(
-                      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-                      child: _peopleNumber()),
-                  Padding(
-                      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-                      child: _customerAge()),
-                  Padding(
-                      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-                      child: _expense()),
-                  Padding(
-                      padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-                      child: _customerTag()),
+                  Container(
+                    // color: Colors.green,
+                    child: Column(children: [
+                      Padding(
+                          padding:
+                              EdgeInsets.only(top: 10, left: 15, right: 15),
+                          child: _peopleNumber()),
+                      Padding(
+                          padding:
+                              EdgeInsets.only(top: 10, left: 15, right: 15),
+                          child: _customerAge()),
+                      Padding(
+                          padding:
+                              EdgeInsets.only(top: 10, left: 15, right: 15),
+                          child: _expense()),
+                      Padding(
+                          padding:
+                              EdgeInsets.only(top: 10, left: 15, right: 15),
+                          child: _customerTag()),
+                    ]),
+                  ),
                 ],
               ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: EdgeInsets.only(top: 0, right: 0),
-              child: _submit(),
             ),
-          ),
-        ],
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.only(top: 0, right: 0),
+                child: _submit(),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -169,7 +179,10 @@ class _CollectorState extends State<Collector> {
             padding: EdgeInsets.only(top: 10),
             child: ImageToggle(_peopleNumberOptions, 150, 45, (value) {
               _userData.peopleNumber = value;
-            }, defaultItemIndex: 1)),
+            },
+                defaultItemIndex: 1,
+                splitWidth: 0,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween)),
       ],
     );
   }
@@ -183,9 +196,11 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_customerAgeOptions, (value) {
+            child: TextToggle(_customerAgeOptions, 150, 45, (value) {
               _userData.customerAge = value;
-            }, defaultItemIndex: 1)),
+            },
+                defaultItemIndex: 1,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween)),
       ],
     );
   }
@@ -199,9 +214,11 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_expenseOptions, (value) {
+            child: TextToggle(_expenseOptions, 150, 45, (value) {
               _userData.expense = value;
-            }, defaultItemIndex: 2)),
+            },
+                defaultItemIndex: 2,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween)),
       ],
     );
   }
@@ -215,9 +232,11 @@ class _CollectorState extends State<Collector> {
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TextToggle(_customerTagOptions, (value) {
+            child: TextToggle(_customerTagOptions, 150, 45, (value) {
               _userData.customerTag = value;
-            }, defaultItemIndex: 1)),
+            },
+                defaultItemIndex: 1,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween)),
       ],
     );
   }

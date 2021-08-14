@@ -4,11 +4,23 @@ import 'ui_data.dart';
 
 class TextToggle extends StatefulWidget {
   final List<TextButtonData> buttonDatas;
+  final double buttonWidth;
+  final double buttonHeight;
+  final double unselectedWidthDiff;
+  final double unselectedHeightDiff;
+  final MainAxisSize mainAxisSize;
+  final MainAxisAlignment mainAxisAlignment;
   final int defaultItemIndex;
   final Function(String) onValueChanged;
 
-  TextToggle(this.buttonDatas, this.onValueChanged,
-      {Key key, this.defaultItemIndex = 0})
+  TextToggle(this.buttonDatas, this.buttonWidth, this.buttonHeight,
+      this.onValueChanged,
+      {Key key,
+      this.unselectedWidthDiff = 0,
+      this.unselectedHeightDiff = 0,
+      this.defaultItemIndex = 0,
+      this.mainAxisSize = MainAxisSize.max,
+      this.mainAxisAlignment = MainAxisAlignment.start})
       : super(key: key);
 
   @override
@@ -33,12 +45,16 @@ class _TextToggleState extends State<TextToggle> {
   Widget build(BuildContext context) {
     return Container(
       child: Row(
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.start,
+        mainAxisSize: widget.mainAxisSize,
+        mainAxisAlignment: widget.mainAxisAlignment,
         children: widget.buttonDatas
             .map((e) => Row(children: [
-                  TExtButton(e.value, e.text, "text_button",
-                      e.value == _selectedValue, _onButtonPressed),
+                  e.placeholder
+                      ? Container(
+                          width: widget.buttonWidth,
+                          height: widget.buttonHeight)
+                      : TExtButton(e.value, e.text, "text_button",
+                          e.value == _selectedValue, _onButtonPressed),
                   Visibility(
                       visible: widget.buttonDatas.indexOf(e) <
                           widget.buttonDatas.length - 1,
@@ -70,20 +86,28 @@ class TExtButton extends StatelessWidget {
   final String value;
   final String text;
   final String iconName;
+  final double width;
+  final double height;
+  final double unselectedWidthDiff;
+  final double unselectedHeightDiff;
   final Function(String) onPressed;
   final bool selected;
 
   const TExtButton(
       this.value, this.text, this.iconName, this.selected, this.onPressed,
-      {Key key})
+      {Key key,
+      this.width = 150,
+      this.height = 45,
+      this.unselectedWidthDiff = 0,
+      this.unselectedHeightDiff = 0})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       // color: Colors.green,
-      width: 150,
-      height: 45,
+      width: width,
+      height: height,
       child: Stack(children: [
         RawMaterialButton(
           child: _getIconPath(),
@@ -108,6 +132,10 @@ class TExtButton extends StatelessWidget {
     String path = "assets/images/ui/";
     String name =
         selected ? "${iconName}_selected.png" : "${iconName}_unselected.png";
-    return Image.asset("$path$name");
+    return Image.asset(
+      "$path$name",
+      width: width - (selected ? 0 : unselectedWidthDiff),
+      height: height - (selected ? 0 : unselectedHeightDiff),
+    );
   }
 }
