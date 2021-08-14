@@ -94,6 +94,7 @@ class _CollectorState extends State<Collector> {
                     Padding(
                         padding: EdgeInsets.only(top: 10, left: 15, right: 15),
                         child: _tag()),
+                    SizedBox(width: double.infinity, height: 20),
                   ]),
                 ],
               ),
@@ -112,59 +113,55 @@ class _CollectorState extends State<Collector> {
   }
 
   Widget _titleBar() {
-    return Container(
-      color: Colors.green,
-      child: Stack(
-        children: [
-          Center(
-            child: Image.asset("assets/images/ui/title_bar.png"),
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 20, top: 5),
-                child: Row(
-                  children: [
-                    Column(
-                      children: [
-                        Text("今日客人",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold)),
-                        SizedBox(height: 10),
-                        Text(DateTime.now().toString().substring(0, 10),
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 12)),
-                      ],
+    return Stack(
+      children: [
+        Center(
+          child: Image.asset("assets/images/ui/title_bar.png"),
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Padding(
+              padding: EdgeInsets.only(left: 20, top: 5),
+              child: Row(
+                children: [
+                  Column(
+                    children: [
+                      Text("今日客人",
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold)),
+                      SizedBox(height: 10),
+                      Text(DateTime.now().toString().substring(0, 10),
+                          style: TextStyle(color: Colors.white, fontSize: 12)),
+                    ],
+                  ),
+                  SizedBox(width: 10),
+                  Column(children: [
+                    Text(
+                      "$_userCount",
+                      style: TextStyle(
+                          color: Color.fromRGBO(255, 214, 0, 1),
+                          fontSize: 32,
+                          fontWeight: FontWeight.w700),
                     ),
-                    SizedBox(width: 10),
-                    Column(children: [
-                      Text(
-                        "$_userCount",
-                        style: TextStyle(
-                            color: Colors.yellow,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w700),
-                      ),
-                    ]),
-                  ],
-                ),
+                    SizedBox(height: 15),
+                  ]),
+                ],
               ),
-              Text("提交", style: TextStyle(color: Colors.white)),
-            ],
-          ),
-          Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: EdgeInsets.only(top: 0, right: 135),
-              child: _sex(),
             ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: EdgeInsets.only(top: 0, right: 135),
+            child: _sex(),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
