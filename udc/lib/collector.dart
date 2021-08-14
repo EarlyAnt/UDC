@@ -21,9 +21,9 @@ class _CollectorState extends State<Collector> {
     ImageButtonData("女", "female")
   ];
   final List<ImageButtonData> _familyOptions = [
-    ImageButtonData("1人", "father_son"),
-    ImageButtonData("母子", "father_son"),
-    ImageButtonData("父子", "more"),
+    ImageButtonData("1人", "one_person"),
+    ImageButtonData("母子", "mother_son"),
+    ImageButtonData("父子", "father_son"),
     ImageButtonData("3+", "more")
   ];
   final List<TextButtonData> _ageOptions = [
@@ -263,9 +263,7 @@ class _CollectorState extends State<Collector> {
       height: 64,
       child: PopButton("assets/images/ui/submit_selected.png",
           "assets/images/ui/submit_unselected.png", onPressed: () {
-        setState(() {
-          _saveData();
-        });
+        _saveData();
       }),
     );
   }
@@ -289,11 +287,13 @@ class _CollectorState extends State<Collector> {
       _storage.writeData(fileCountent);
       print("${_userData.toString()}");
 
-      _sexKey.currentState.refresh();
-      _familyKey.currentState.refresh();
-      _ageKey.currentState.refresh();
-      _expenseKey.currentState.refresh();
-      _tagKey.currentState.refresh();
+      setState(() {
+        _sexKey.currentState.refresh();
+        _familyKey.currentState.refresh();
+        _ageKey.currentState.refresh();
+        _expenseKey.currentState.refresh();
+        _tagKey.currentState.refresh();
+      });
     });
     return null;
   }

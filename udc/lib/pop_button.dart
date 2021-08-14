@@ -22,7 +22,7 @@ class _PopButtonState extends State<PopButton> {
       onTapDown: (details) {
         setState(() {
           _tapDown = true;
-          print("onTapDown");
+          // print("onTapDown");
         });
       },
       onTapUp: (details) {
@@ -31,13 +31,13 @@ class _PopButtonState extends State<PopButton> {
           if (widget.onPressed != null) {
             widget.onPressed();
           }
-          print("onTapUp");
+          // print("onTapUp");
         });
       },
       onTapCancel: () {
         setState(() {
           _tapDown = false;
-          print("onTapCancel");
+          // print("onTapCancel");
         });
       },
     );
