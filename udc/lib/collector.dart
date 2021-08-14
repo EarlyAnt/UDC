@@ -53,7 +53,9 @@ class _CollectorState extends State<Collector> {
   UserData _userData = UserData();
   List<String> _userDataList = [];
   Storage _storage = Storage();
-  int get _userCount => _userDataList != null ? _userDataList.length : 0;
+  int get _userCount => _userDataList != null && _userDataList.length > 0
+      ? _userDataList.length - 1
+      : 0;
 
   @override
   void initState() {
@@ -269,33 +271,35 @@ class _CollectorState extends State<Collector> {
   }
 
   Future<File> _saveData() async {
-    _storage.fileExists().then((value) {
-      if (!value) {
-        _storage.writeData("date,time,id,sex,family,age,expense,tag");
-      }
+    bool fileExisted = await _storage.fileExists();
 
-      if (_userDataList == null) {
-        _userDataList = [];
-      }
-      _userData.id = _userCount + 1;
-      _userDataList.add("${_userData.toString()}\n");
+    if (_userDataList == null) {
+      _userDataList = [];
+    }
 
-      String fileCountent = "";
-      for (var line in _userDataList) {
-        fileCountent += "$line\n";
-      }
-      _storage.writeData(fileCountent);
-      print("${_userData.toString()}");
+    if (!fileExisted) {
+      String title = "date,time,id,sex,family,age,expense,tag\n";
+      _userDataList.add(title);
+    }
 
-      setState(() {
-        _sexKey.currentState.refresh();
-        _familyKey.currentState.refresh();
-        _ageKey.currentState.refresh();
-        _expenseKey.currentState.refresh();
-        _tagKey.currentState.refresh();
-      });
+    _userData.id = _userCount + 1;
+    _userDataList.add("${_userData.toString()}\n");
+
+    String fileCountent = "";
+    for (var line in _userDataList) {
+      fileCountent += line;
+    }
+    var result = await _storage.writeData(fileCountent);
+    print("${_userData.toString()}");
+
+    setState(() {
+      _sexKey.currentState.refresh();
+      _familyKey.currentState.refresh();
+      _ageKey.currentState.refresh();
+      _expenseKey.currentState.refresh();
+      _tagKey.currentState.refresh();
     });
-    return null;
+    return result;
   }
 
   void _readData() async {

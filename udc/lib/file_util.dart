@@ -61,13 +61,7 @@ class Storage {
   Future<File> writeData(data) async {
     try {
       var file = await _localFile;
-      var fileExists = await file.exists();
-
-      if (fileExists) {
-        return file.writeAsString('$data');
-      } else {
-        return null;
-      }
+      return file.writeAsString('$data');
     } catch (e) {
       return null;
     }
