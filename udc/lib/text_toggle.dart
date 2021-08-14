@@ -24,21 +24,16 @@ class TextToggle extends StatefulWidget {
       : super(key: key);
 
   @override
-  _TextToggleState createState() => _TextToggleState();
+  TextToggleState createState() => TextToggleState();
 }
 
-class _TextToggleState extends State<TextToggle> {
+class TextToggleState extends State<TextToggle> {
   String _selectedValue;
 
   @override
   void initState() {
     super.initState();
-    _selectedValue = widget.buttonDatas != null &&
-            widget.defaultItemIndex >= 0 &&
-            widget.defaultItemIndex < widget.buttonDatas.length
-        ? widget.buttonDatas[widget.defaultItemIndex].value
-        : "";
-    _onValueChanged();
+    refresh();
   }
 
   @override
@@ -79,6 +74,15 @@ class _TextToggleState extends State<TextToggle> {
         widget.onValueChanged != null) {
       widget.onValueChanged(_selectedValue);
     }
+  }
+
+  void refresh() {
+    _selectedValue = widget.buttonDatas != null &&
+            widget.defaultItemIndex >= 0 &&
+            widget.defaultItemIndex < widget.buttonDatas.length
+        ? widget.buttonDatas[widget.defaultItemIndex].value
+        : "";
+    _onValueChanged();
   }
 }
 

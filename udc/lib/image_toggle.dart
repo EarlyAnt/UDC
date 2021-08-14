@@ -26,21 +26,16 @@ class ImageToggle extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ImageToggleState createState() => _ImageToggleState();
+  ImageToggleState createState() => ImageToggleState();
 }
 
-class _ImageToggleState extends State<ImageToggle> {
+class ImageToggleState extends State<ImageToggle> {
   String _selectedValue;
 
   @override
   void initState() {
     super.initState();
-    _selectedValue = widget.buttonDatas != null &&
-            widget.defaultItemIndex >= 0 &&
-            widget.defaultItemIndex < widget.buttonDatas.length
-        ? widget.buttonDatas[widget.defaultItemIndex].value
-        : "";
-    _onValueChanged();
+    refresh();
   }
 
   @override
@@ -85,6 +80,15 @@ class _ImageToggleState extends State<ImageToggle> {
         widget.onValueChanged != null) {
       widget.onValueChanged(_selectedValue);
     }
+  }
+
+  void refresh() {
+    _selectedValue = widget.buttonDatas != null &&
+            widget.defaultItemIndex >= 0 &&
+            widget.defaultItemIndex < widget.buttonDatas.length
+        ? widget.buttonDatas[widget.defaultItemIndex].value
+        : "";
+    _onValueChanged();
   }
 }
 

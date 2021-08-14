@@ -44,6 +44,12 @@ class _CollectorState extends State<Collector> {
     TextButtonData("C", "C"),
     TextButtonData("D", "D")
   ];
+  final GlobalKey<ImageToggleState> _sexKey = GlobalKey();
+  final GlobalKey<ImageToggleState> _familyKey = GlobalKey();
+  final GlobalKey<TextToggleState> _ageKey = GlobalKey();
+  final GlobalKey<TextToggleState> _expenseKey = GlobalKey();
+  final GlobalKey<TextToggleState> _tagKey = GlobalKey();
+
   UserData _userData = UserData();
   List<String> _userDataList = [];
   Storage _storage = Storage();
@@ -166,6 +172,7 @@ class _CollectorState extends State<Collector> {
         child: ImageToggle(_sexOptions, 46, 44, (value) {
       _userData.sex = value;
     },
+            key: _sexKey,
             unselectedWidthDiff: 10,
             unselectedHeightDiff: 10,
             splitWidth: 15,
@@ -185,6 +192,7 @@ class _CollectorState extends State<Collector> {
             child: ImageToggle(_familyOptions, 150, 45, (value) {
               _userData.family = value;
             },
+                key: _familyKey,
                 defaultItemIndex: 1,
                 splitWidth: 0,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween)),
@@ -204,6 +212,7 @@ class _CollectorState extends State<Collector> {
             child: TextToggle(_ageOptions, 150, 45, (value) {
               _userData.age = value;
             },
+                key: _ageKey,
                 defaultItemIndex: 1,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween)),
       ],
@@ -222,6 +231,7 @@ class _CollectorState extends State<Collector> {
             child: TextToggle(_expenseOptions, 150, 45, (value) {
               _userData.expense = value;
             },
+                key: _expenseKey,
                 defaultItemIndex: 2,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween)),
       ],
@@ -240,6 +250,7 @@ class _CollectorState extends State<Collector> {
             child: TextToggle(_tagOptions, 150, 45, (value) {
               _userData.tag = value;
             },
+                key: _tagKey,
                 defaultItemIndex: 1,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween)),
       ],
@@ -277,6 +288,12 @@ class _CollectorState extends State<Collector> {
       }
       _storage.writeData(fileCountent);
       print("${_userData.toString()}");
+
+      _sexKey.currentState.refresh();
+      _familyKey.currentState.refresh();
+      _ageKey.currentState.refresh();
+      _expenseKey.currentState.refresh();
+      _tagKey.currentState.refresh();
     });
     return null;
   }
