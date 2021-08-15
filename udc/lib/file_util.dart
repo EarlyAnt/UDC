@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:path_provider/path_provider.dart';
@@ -62,6 +61,12 @@ class Storage {
   Future<File> writeData(String data) async {
     try {
       var file = await _localFile;
+      var fileExistes = await file.exists();
+
+      if (!fileExistes) {
+        file.writeAsBytes([0xEF, 0xBB, 0xBF]);
+      }
+
       return file.writeAsString(data);
     } catch (e) {
       return null;

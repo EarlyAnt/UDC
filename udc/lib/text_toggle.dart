@@ -8,6 +8,7 @@ class TextToggle extends StatefulWidget {
   final double buttonHeight;
   final double unselectedWidthDiff;
   final double unselectedHeightDiff;
+  final double splitWidth;
   final MainAxisSize mainAxisSize;
   final MainAxisAlignment mainAxisAlignment;
   final int defaultItemIndex;
@@ -19,6 +20,7 @@ class TextToggle extends StatefulWidget {
       this.unselectedWidthDiff = 0,
       this.unselectedHeightDiff = 0,
       this.defaultItemIndex = 0,
+      this.splitWidth = 0,
       this.mainAxisSize = MainAxisSize.max,
       this.mainAxisAlignment = MainAxisAlignment.start})
       : super(key: key);
@@ -53,7 +55,7 @@ class TextToggleState extends State<TextToggle> {
                   Visibility(
                       visible: widget.buttonDatas.indexOf(e) <
                           widget.buttonDatas.length - 1,
-                      child: SizedBox(width: 60)),
+                      child: SizedBox(width: widget.splitWidth)),
                 ]))
             .toList(),
       ),

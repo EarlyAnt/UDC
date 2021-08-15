@@ -65,49 +65,62 @@ class _CollectorState extends State<Collector> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setPreferredOrientations(
-        [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
+    // SystemChrome.setPreferredOrientations(
+    //     [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
+    // SystemChrome.setEnabledSystemUIOverlays([]);
+    double horizontalPadding = 15;
 
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Padding(
-                padding: EdgeInsets.only(top: 130, left: 10, right: 10),
-                child: Image.asset("assets/images/ui/water_mark.png")),
-            Align(alignment: Alignment.topCenter, child: _titleBar()),
-            Padding(
+      body: Stack(
+        children: [
+          Padding(
+              padding: EdgeInsets.only(top: 130, left: 10, right: 10),
+              child: Image.asset("assets/images/ui/water_mark.png")),
+          SingleChildScrollView(
+            child: Padding(
               padding: EdgeInsets.only(top: 58),
               child: Column(
                 children: [
                   Column(children: [
                     Padding(
-                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        padding: EdgeInsets.only(
+                            top: 10,
+                            left: horizontalPadding,
+                            right: horizontalPadding),
                         child: _family()),
                     Padding(
-                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        padding: EdgeInsets.only(
+                            top: 10,
+                            left: horizontalPadding,
+                            right: horizontalPadding),
                         child: _age()),
                     Padding(
-                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        padding: EdgeInsets.only(
+                            top: 10,
+                            left: horizontalPadding,
+                            right: horizontalPadding),
                         child: _expense()),
                     Padding(
-                        padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+                        padding: EdgeInsets.only(
+                            top: 10,
+                            left: horizontalPadding,
+                            right: horizontalPadding),
                         child: _tag()),
                     SizedBox(width: double.infinity, height: 20),
                   ]),
                 ],
               ),
             ),
-            Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: EdgeInsets.only(top: 0, right: 0),
-                child: _submit(),
-              ),
+          ),
+          Align(alignment: Alignment.topCenter, child: _titleBar()),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: EdgeInsets.only(top: 0, right: 0),
+              child: _submit(),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -115,7 +128,8 @@ class _CollectorState extends State<Collector> {
   Widget _titleBar() {
     return Stack(
       children: [
-        Center(
+        Align(
+          alignment: Alignment.topCenter,
           child: Image.asset("assets/images/ui/title_bar.png"),
         ),
         Row(
@@ -174,7 +188,7 @@ class _CollectorState extends State<Collector> {
             key: _sexKey,
             unselectedWidthDiff: 10,
             unselectedHeightDiff: 10,
-            splitWidth: 15,
+            splitWidth: 0,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center));
   }

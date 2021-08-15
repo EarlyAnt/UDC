@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:udc/collector.dart';
 import 'file_util.dart';
+import 'splash_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
-      home: Collector(),
+      home: SplashScreen(),
     );
   }
 }

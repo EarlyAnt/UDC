@@ -19,7 +19,7 @@ class ImageToggle extends StatefulWidget {
       {Key key,
       this.unselectedWidthDiff = 0,
       this.unselectedHeightDiff = 0,
-      this.splitWidth = 60,
+      this.splitWidth = 0,
       this.mainAxisSize = MainAxisSize.max,
       this.mainAxisAlignment = MainAxisAlignment.start,
       this.defaultItemIndex = 0})
