@@ -44,12 +44,34 @@ class _SplashScreenState extends State<SplashScreen>
     //     [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     SystemChrome.setEnabledSystemUIOverlays([]);
 
-    return FadeTransition(
-      opacity: _animation,
-      child: Image.asset(
-        "assets/images/ui/water_mark.png",
-        scale: 1.0,
-        fit: BoxFit.contain,
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: FadeTransition(
+              opacity: _animation,
+              child: Image.asset(
+                "assets/images/ui/splash.png",
+                scale: 1.0,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 7, right: 30),
+              child: FadeTransition(
+                opacity: _animation,
+                child: Text(
+                  "v1.0",
+                  style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

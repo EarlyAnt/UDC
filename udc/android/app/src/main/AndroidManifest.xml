@@ -2,7 +2,7 @@
     package="com.bowhead.udc">
    <application
         android:label="UDC"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/icon">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
