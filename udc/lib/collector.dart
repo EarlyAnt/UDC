@@ -73,45 +73,51 @@ class _CollectorState extends State<Collector> {
     return Scaffold(
       body: Stack(
         children: [
-          Padding(
-              padding: EdgeInsets.only(top: 130, left: 10, right: 10),
-              child: Image.asset("assets/images/ui/water_mark.png")),
-          SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.only(top: 58),
-              child: Column(
-                children: [
-                  Column(children: [
-                    Padding(
-                        padding: EdgeInsets.only(
-                            top: 10,
-                            left: horizontalPadding,
-                            right: horizontalPadding),
-                        child: _family()),
-                    Padding(
-                        padding: EdgeInsets.only(
-                            top: 10,
-                            left: horizontalPadding,
-                            right: horizontalPadding),
-                        child: _age()),
-                    Padding(
-                        padding: EdgeInsets.only(
-                            top: 10,
-                            left: horizontalPadding,
-                            right: horizontalPadding),
-                        child: _expense()),
-                    Padding(
-                        padding: EdgeInsets.only(
-                            top: 10,
-                            left: horizontalPadding,
-                            right: horizontalPadding),
-                        child: _tag()),
-                    SizedBox(width: double.infinity, height: 20),
-                  ]),
-                ],
-              ),
-            ),
+          Column(
+            children: [
+              SizedBox(height: 58),
+              Expanded(
+                  child: Container(
+                      // color: Colors.lightGreenAccent,
+                      alignment: Alignment.center,
+                      child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          child:
+                              Image.asset("assets/images/ui/water_mark.png")))),
+            ],
           ),
+          SingleChildScrollView(
+              child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                SizedBox(height: 58),
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: 0,
+                        left: horizontalPadding,
+                        right: horizontalPadding),
+                    child: _family()),
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: 0,
+                        left: horizontalPadding,
+                        right: horizontalPadding),
+                    child: _age()),
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: 0,
+                        left: horizontalPadding,
+                        right: horizontalPadding),
+                    child: _expense()),
+                Padding(
+                    padding: EdgeInsets.only(
+                        top: 0,
+                        left: horizontalPadding,
+                        right: horizontalPadding),
+                    child: _tag()),
+                SizedBox(width: double.infinity, height: 20),
+              ])),
           Align(alignment: Alignment.topCenter, child: _titleBar()),
           Align(
             alignment: Alignment.topRight,

@@ -65,7 +65,7 @@ class _SplashScreenState extends State<SplashScreen>
               child: FadeTransition(
                 opacity: _animation,
                 child: Text(
-                  "v1.0",
+                  "v1.1",
                   style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
                 ),
               ),
