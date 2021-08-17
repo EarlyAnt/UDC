@@ -1,12 +1,12 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:udc/data.dart';
 
 import 'file_util.dart';
 import 'image_toggle.dart';
 import 'pop_button.dart';
+import 'screen_size_fit_util.dart';
 import 'text_toggle.dart';
 import 'ui_data.dart';
 
@@ -68,7 +68,6 @@ class _CollectorState extends State<Collector> {
     // SystemChrome.setPreferredOrientations(
     //     [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     // SystemChrome.setEnabledSystemUIOverlays([]);
-    double horizontalPadding = 15;
 
     return Scaffold(
       body: Stack(
@@ -86,46 +85,12 @@ class _CollectorState extends State<Collector> {
                               Image.asset("assets/images/ui/water_mark.png")))),
             ],
           ),
-          SingleChildScrollView(
-              child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                SizedBox(height: 58),
-                Padding(
-                    padding: EdgeInsets.only(
-                        top: 0,
-                        left: horizontalPadding,
-                        right: horizontalPadding),
-                    child: _family()),
-                Padding(
-                    padding: EdgeInsets.only(
-                        top: 0,
-                        left: horizontalPadding,
-                        right: horizontalPadding),
-                    child: _age()),
-                Padding(
-                    padding: EdgeInsets.only(
-                        top: 0,
-                        left: horizontalPadding,
-                        right: horizontalPadding),
-                    child: _expense()),
-                Padding(
-                    padding: EdgeInsets.only(
-                        top: 0,
-                        left: horizontalPadding,
-                        right: horizontalPadding),
-                    child: _tag()),
-                SizedBox(width: double.infinity, height: 20),
-              ])),
+          ScreenSizeFitUtil.screenSize.height >= 480
+              ? _options()
+              : SingleChildScrollView(
+                  child: _options(),
+                ),
           Align(alignment: Alignment.topCenter, child: _titleBar()),
-          Align(
-            alignment: Alignment.topRight,
-            child: Padding(
-              padding: EdgeInsets.only(top: 0, right: 0),
-              child: _submit(),
-            ),
-          ),
         ],
       ),
     );
@@ -177,24 +142,61 @@ class _CollectorState extends State<Collector> {
         Align(
           alignment: Alignment.topRight,
           child: Padding(
-            padding: EdgeInsets.only(top: 0, right: 135),
+            padding: EdgeInsets.only(top: 0, right: 160),
             child: _sex(),
+          ),
+        ),
+        Align(
+          alignment: Alignment.topRight,
+          child: Padding(
+            padding: EdgeInsets.only(top: 0, right: 0),
+            child: _submit(),
           ),
         ),
       ],
     );
   }
 
+  Widget _options() {
+    double horizontalPadding = 35;
+    return Container(
+      // color: Colors.lightGreenAccent,
+      child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            SizedBox(height: 58),
+            Padding(
+                padding: EdgeInsets.only(
+                    top: 0, left: horizontalPadding, right: horizontalPadding),
+                child: _family()),
+            Padding(
+                padding: EdgeInsets.only(
+                    top: 0, left: horizontalPadding, right: horizontalPadding),
+                child: _age()),
+            Padding(
+                padding: EdgeInsets.only(
+                    top: 0, left: horizontalPadding, right: horizontalPadding),
+                child: _expense()),
+            Padding(
+                padding: EdgeInsets.only(
+                    top: 0, left: horizontalPadding, right: horizontalPadding),
+                child: _tag()),
+            SizedBox(width: double.infinity, height: 10),
+          ]),
+    );
+  }
+
   Widget _sex() {
     return Container(
         // color: Colors.green,
-        child: ImageToggle(_sexOptions, 46, 44, (value) {
+        child: ImageToggle(_sexOptions, 55.2, 52.8, (value) {
       _userData.sex = value;
     },
             key: _sexKey,
             unselectedWidthDiff: 10,
             unselectedHeightDiff: 10,
-            splitWidth: 0,
+            splitWidth: 10,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center));
   }
@@ -207,7 +209,7 @@ class _CollectorState extends State<Collector> {
             child: Text("到店家庭",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: 5),
             child: ImageToggle(_familyOptions, 150, 45, (value) {
               _userData.family = value;
             },
@@ -227,7 +229,7 @@ class _CollectorState extends State<Collector> {
             child: Text("用户客层",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: 5),
             child: TextToggle(_ageOptions, 150, 45, (value) {
               _userData.age = value;
             },
@@ -246,7 +248,7 @@ class _CollectorState extends State<Collector> {
             child: Text("消费区间",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: 5),
             child: TextToggle(_expenseOptions, 150, 45, (value) {
               _userData.expense = value;
             },
@@ -265,7 +267,7 @@ class _CollectorState extends State<Collector> {
             child: Text("客户标签",
                 style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
         Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: 5),
             child: TextToggle(_tagOptions, 150, 45, (value) {
               _userData.tag = value;
             },
@@ -278,8 +280,8 @@ class _CollectorState extends State<Collector> {
 
   Widget _submit() {
     return Container(
-      width: 112,
-      height: 64,
+      width: 134.4,
+      height: 76.8,
       child: PopButton("assets/images/ui/submit_selected.png",
           "assets/images/ui/submit_unselected.png", onPressed: () {
         _saveData();
@@ -288,13 +290,11 @@ class _CollectorState extends State<Collector> {
   }
 
   Future<File> _saveData() async {
-    bool fileExisted = await _storage.fileExists();
-
     if (_userDataList == null) {
       _userDataList = [];
     }
 
-    if (!fileExisted) {
+    if (_userDataList.length == 0) {
       String title = "date,time,id,sex,family,age,expense,tag\n";
       _userDataList.add(title);
     }
