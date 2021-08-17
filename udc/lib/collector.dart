@@ -107,24 +107,27 @@ class _CollectorState extends State<Collector> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Padding(
-              padding: EdgeInsets.only(left: 20, top: 5),
-              child: Row(
-                children: [
-                  Column(
+            Row(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(left: 20, top: 12),
+                  child: Column(
                     children: [
                       Text("今日客人",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold)),
-                      SizedBox(height: 10),
+                      SizedBox(height: 7),
                       Text(DateTime.now().toString().substring(0, 10),
                           style: TextStyle(color: Colors.white, fontSize: 12)),
                     ],
                   ),
-                  SizedBox(width: 10),
-                  Column(children: [
+                ),
+                SizedBox(width: 10),
+                Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Column(children: [
                     Text(
                       "$_userCount",
                       style: TextStyle(
@@ -134,8 +137,8 @@ class _CollectorState extends State<Collector> {
                     ),
                     SizedBox(height: 15),
                   ]),
-                ],
-              ),
+                ),
+              ],
             ),
           ],
         ),
@@ -196,7 +199,7 @@ class _CollectorState extends State<Collector> {
             key: _sexKey,
             unselectedWidthDiff: 10,
             unselectedHeightDiff: 10,
-            splitWidth: 10,
+            splitWidth: 20,
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center));
   }
