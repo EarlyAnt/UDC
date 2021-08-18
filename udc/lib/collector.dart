@@ -6,7 +6,6 @@ import 'package:udc/data.dart';
 import 'file_util.dart';
 import 'image_toggle.dart';
 import 'pop_button.dart';
-import 'screen_size_fit_util.dart';
 import 'text_toggle.dart';
 import 'ui_data.dart';
 
@@ -205,8 +204,13 @@ class _CollectorState extends State<Collector> {
       children: [
         Container(
             width: double.infinity,
-            child: Text("到店家庭",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600))),
+            child: TextButton(
+                child: Text("到店家庭",
+                    style:
+                        TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+                onPressed: () {
+                  print('123');
+                })),
         Padding(
             padding: EdgeInsets.only(top: 5),
             child: ImageToggle(_familyOptions, 150, 45, (value) {
@@ -288,7 +292,7 @@ class _CollectorState extends State<Collector> {
     );
   }
 
-  Future<File> _saveData() async {
+  Future<File?> _saveData() async {
     if (_userDataList == null) {
       _userDataList = [];
     }
@@ -309,11 +313,11 @@ class _CollectorState extends State<Collector> {
     print("${_userData.toString()}");
 
     setState(() {
-      _sexKey.currentState.refresh();
-      _familyKey.currentState.refresh();
-      _ageKey.currentState.refresh();
-      _expenseKey.currentState.refresh();
-      _tagKey.currentState.refresh();
+      _sexKey.currentState?.refresh();
+      _familyKey.currentState?.refresh();
+      _ageKey.currentState?.refresh();
+      _expenseKey.currentState?.refresh();
+      _tagKey.currentState?.refresh();
     });
     return result;
   }
@@ -321,7 +325,7 @@ class _CollectorState extends State<Collector> {
   void _readData() async {
     _storage.readData().then((value) {
       setState(() {
-        _userDataList = value;
+        _userDataList = value!;
       });
     });
   }

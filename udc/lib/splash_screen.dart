@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:udc/collector.dart';
 
 class SplashScreen extends StatefulWidget {
-  SplashScreen({Key key}) : super(key: key);
+  SplashScreen({Key? key}) : super(key: key);
   @override
   _SplashScreenState createState() {
     return _SplashScreenState();
@@ -12,8 +12,8 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-  AnimationController _controller;
-  Animation _animation;
+  late AnimationController _controller;
+  late Animation<double> _animation;
   bool _fadeOver = false;
 
   @override
