@@ -14,6 +14,7 @@ class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
   AnimationController _controller;
   Animation _animation;
+  bool _fadeOver = false;
 
   @override
   void initState() {
@@ -23,10 +24,16 @@ class _SplashScreenState extends State<SplashScreen>
     _animation = Tween(begin: 0.0, end: 1.0).animate(_controller);
     _animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (Context) {
-          return Collector();
-        }), (route) => route == null);
+        setState(() {
+          _fadeOver = true;
+        });
+
+        Future.delayed(Duration(seconds: 1)).then((value) {
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (subContext) {
+            return Collector();
+          }), (route) => route == null);
+        });
       }
     });
     _controller.forward();
@@ -62,10 +69,10 @@ class _SplashScreenState extends State<SplashScreen>
             alignment: Alignment.bottomRight,
             child: Padding(
               padding: EdgeInsets.only(bottom: 7, right: 30),
-              child: FadeTransition(
-                opacity: _animation,
+              child: Visibility(
+                visible: _fadeOver,
                 child: Text(
-                  "v1.1",
+                  "v1.0.1",
                   style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
                 ),
               ),

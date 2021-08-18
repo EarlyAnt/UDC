@@ -85,11 +85,7 @@ class _CollectorState extends State<Collector> {
                               Image.asset("assets/images/ui/water_mark.png")))),
             ],
           ),
-          ScreenSizeFitUtil.screenSize.height >= 480
-              ? _options()
-              : SingleChildScrollView(
-                  child: _options(),
-                ),
+          _options(),
           Align(alignment: Alignment.topCenter, child: _titleBar()),
         ],
       ),
@@ -118,7 +114,7 @@ class _CollectorState extends State<Collector> {
                               color: Colors.white,
                               fontSize: 18,
                               fontWeight: FontWeight.bold)),
-                      SizedBox(height: 7),
+                      SizedBox(height: 6),
                       Text(DateTime.now().toString().substring(0, 10),
                           style: TextStyle(color: Colors.white, fontSize: 12)),
                     ],
