@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:udc/data.dart';
 
 import 'file_util.dart';
@@ -209,7 +210,7 @@ class _CollectorState extends State<Collector> {
                     style:
                         TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
                 onPressed: () {
-                  print('123');
+                  _shareFile();
                 })),
         Padding(
             padding: EdgeInsets.only(top: 5),
@@ -328,5 +329,13 @@ class _CollectorState extends State<Collector> {
         _userDataList = value!;
       });
     });
+  }
+
+  Future _shareFile() async {
+    final filePath = await _storage.localFilePath;
+    print("share file: $filePath");
+
+    Share.shareFiles(['$filePath'], text: 'User Data');
+    // Share.share('https://www.baidu.com/', subject: 'baidu');
   }
 }

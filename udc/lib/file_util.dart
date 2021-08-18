@@ -49,8 +49,7 @@ class Storage {
 
   Future<String> get localPath async {
     final Directory? packageDirectory = await getExternalStorageDirectory();
-    final Directory? customDirectory =
-        Directory("${packageDirectory?.path}/UDC/");
+    final Directory? customDirectory = Directory("${packageDirectory?.path}");
 
     bool? existed = await customDirectory?.exists();
     if (!existed!) {
@@ -60,6 +59,12 @@ class Storage {
 
     print("<><Storage._localPath>file path: ${customDirectory?.path}");
     return customDirectory!.path;
+  }
+
+  Future<String> get localFilePath async {
+    final path = await localPath;
+
+    return '$path/user_data_${DateTime.now().toString().substring(0, 10)}.csv';
   }
 
   Future<File> get localFile async {
