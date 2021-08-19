@@ -2,12 +2,9 @@ import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'file_util.dart';
-import 'screen_size_fit_util.dart';
 import 'splash_screen.dart';
 
 void main() {
-  ScreenSizeFitUtil.initialize();
-
   runApp(MyApp());
 }
 

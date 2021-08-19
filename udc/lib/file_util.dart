@@ -49,12 +49,12 @@ class Storage {
 
   Future<String> get _localPath async {
     final Directory packageDirectory = await getExternalStorageDirectory();
-    final Directory customDirectory =
-        Directory("${packageDirectory.parent.path}/UDC/");
+    final Directory customDirectory = Directory(
+        "${packageDirectory.parent.parent.parent.parent.path}/Download/UDC");
 
+    await requestPermissions();
     bool existed = await customDirectory.exists();
     if (!existed) {
-      await requestPermissions();
       await customDirectory.create();
     }
 
@@ -65,8 +65,9 @@ class Storage {
   Future<File> get _localFile async {
     final path = await _localPath;
 
-    return File(
-        '$path/user_data_${DateTime.now().toString().substring(0, 10)}.csv');
+    // return File(
+    //     '$path/user_data_${DateTime.now().toString().substring(0, 10)}.csv');
+    return File('$path/user_data_2021-08-17.csv');
   }
 
   Future<bool> fileExists() async {
@@ -76,24 +77,6 @@ class Storage {
     } catch (e) {
       return false;
     }
-  }
-
-  Future<int> readCounter() async {
-    try {
-      final file = await _localFile;
-
-      var contents = await file.readAsString();
-
-      return int.parse(contents);
-    } catch (e) {
-      return 0;
-    }
-  }
-
-  Future<File> writeCounter(counter) async {
-    final file = await _localFile;
-
-    return file.writeAsString('$counter');
   }
 
   Future<List<String>> readData() async {
@@ -108,6 +91,7 @@ class Storage {
         return [];
       }
     } catch (e) {
+      print("<><Storage.readData>error: $e");
       return null;
     }
   }
@@ -115,14 +99,10 @@ class Storage {
   Future<File> writeData(String data) async {
     try {
       var file = await _localFile;
-      var fileExistes = await file.exists();
 
-      if (!fileExistes) {
-        file.writeAsBytes([0xEF, 0xBB, 0xBF]);
-      }
-
-      return file.writeAsString(data);
+      return file.writeAsString(data, flush: true);
     } catch (e) {
+      print("<><Storage.writeData>error: $e");
       return null;
     }
   }

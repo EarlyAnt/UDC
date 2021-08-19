@@ -6,7 +6,6 @@ import 'package:udc/data.dart';
 import 'file_util.dart';
 import 'image_toggle.dart';
 import 'pop_button.dart';
-import 'screen_size_fit_util.dart';
 import 'text_toggle.dart';
 import 'ui_data.dart';
 
@@ -284,6 +283,7 @@ class _CollectorState extends State<Collector> {
       child: PopButton("assets/images/ui/submit_selected.png",
           "assets/images/ui/submit_unselected.png", onPressed: () {
         _saveData();
+        // _readData();
       }),
     );
   }
@@ -299,11 +299,11 @@ class _CollectorState extends State<Collector> {
     }
 
     _userData.id = _userCount + 1;
-    _userDataList.add("${_userData.toString()}\n");
+    _userDataList.add("${_userData.toString()}");
 
     String fileCountent = "";
     for (var line in _userDataList) {
-      fileCountent += line;
+      fileCountent += "$line\n";
     }
     var result = await _storage.writeData(fileCountent);
     print("${_userData.toString()}");
@@ -319,10 +319,9 @@ class _CollectorState extends State<Collector> {
   }
 
   void _readData() async {
-    _storage.readData().then((value) {
-      setState(() {
-        _userDataList = value;
-      });
+    List<String> fileContent = await _storage.readData();
+    setState(() {
+      _userDataList = fileContent;
     });
   }
 }
