@@ -4,84 +4,70 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class Storage {
-  Future printDirectories() async {
-    Directory directory;
-    directory = await getApplicationDocumentsDirectory();
-    print("getApplicationDocumentsDirectory: ${directory.path}");
-    directory = await getApplicationSupportDirectory();
-    print("getApplicationSupportDirectory: ${directory.path}");
-    // path = await getDownloadsDirectory();
-    // print("getDownloadsDirectory: ${path.path}");
-    directory = await getTemporaryDirectory();
-    print("getTemporaryDirectory: ${directory.path}");
-    directory = await getExternalStorageDirectory();
-    print("getExternalStorageDirectory: ${directory.path}");
-    // path = await getLibraryDirectory();
-    // print("getLibraryDirectory: ${path.path}");
-    directory = await getTemporaryDirectory();
-    print("getTemporaryDirectory: ${directory.path}");
+  Future<String> get _packageDirectory async {
+    final Directory? packageDirectory = await getExternalStorageDirectory();
+    final Directory? customDirectory =
+        Directory("${packageDirectory!.parent.path}/UDC");
 
-    List<Directory> directories = await getExternalStorageDirectories();
-    for (var dir in directories) {
-      print("ExternalStorageDirectories: ${dir.path}\n");
-    }
-  }
-
-  Future requestPermissions() async {
-    Permission permission = Permission.storage;
-    //权限的状态
-    PermissionStatus status = await permission.status;
-
-    if (status.isUndetermined) {
-      //从未申请过
-      permission.request();
-    } else if (status.isDenied) {
-      //第一次申请用户拒绝
-      permission.request();
-    } else if (status.isPermanentlyDenied) {
-      //用户点击了 拒绝且不再提示
-      permission.request();
-    } else {
+    if (await Permission.storage.request().isGranted) {
       //权限通过
       print("permission granted");
     }
-  }
 
-  Future<String> get _localPath async {
-    final Directory packageDirectory = await getExternalStorageDirectory();
-    final Directory customDirectory = Directory(
-        "${packageDirectory.parent.parent.parent.parent.path}/Download/UDC");
-
-    await requestPermissions();
-    bool existed = await customDirectory.exists();
+    bool existed = await customDirectory!.exists();
     if (!existed) {
       await customDirectory.create();
     }
 
-    print("<><Storage._localPath>file path: ${customDirectory.path}");
+    print("<><Storage._packageDirectory>file path: ${customDirectory.path}");
     return customDirectory.path;
   }
 
-  Future<File> get _localFile async {
-    final path = await _localPath;
+  Future<String> get _downloadDirectory async {
+    final Directory? packageDirectory = await getExternalStorageDirectory();
+    final Directory? customDirectory = Directory(
+        "${packageDirectory!.parent.parent.parent.parent.path}/Download/UDC");
 
-    // return File(
-    //     '$path/user_data_${DateTime.now().toString().substring(0, 10)}.csv');
-    return File('$path/user_data_2021-08-17.csv');
+    if (await Permission.storage.request().isGranted) {
+      //权限通过
+      print("permission granted");
+    }
+
+    bool existed = await customDirectory!.exists();
+    if (!existed) {
+      await customDirectory.create();
+    }
+
+    print("<><Storage._downloadDirectory>file path: ${customDirectory.path}");
+    return customDirectory.path;
+  }
+
+  Future<File> get _sourceFile async {
+    final directory = await _packageDirectory;
+
+    return File(
+        '$directory/user_data_${DateTime.now().toString().substring(0, 10)}.csv');
+  }
+
+  Future<File> get _backupFile async {
+    final directory = await _downloadDirectory;
+
+    return File(
+        "$directory/user_data_${DateTime.now().toString().substring(0, 19).replaceAll(' ', '_').replaceAll(':', '-')}.csv");
   }
 
   Future<bool> fileExists() async {
     try {
-      final file = await _localFile;
+      final file = await _sourceFile;
       return file.exists();
     } catch (e) {
       return false;
     }
   }
 
-  Future<List<String>> readData() async {
+  Future<List<String>?> readData() async {
     try {
-      var file = await _localFile;
+      var file = await _sourceFile;
       var fileExists = await file.exists();
 
       if (fileExists) {
@@ -96,14 +82,29 @@ class Storage {
     }
   }
 
-  Future<File> writeData(String data) async {
+  Future<File?> writeData(String data) async {
     try {
-      var file = await _localFile;
+      var sourceFile = await _sourceFile;
 
-      return file.writeAsString(data, flush: true);
+      await _deleteExpiredFiles();
+      sourceFile.writeAsString(data, flush: true);
+      var backupFile = await _backupFile;
+      return sourceFile.copy("${backupFile.path}");
     } catch (e) {
       print("<><Storage.writeData>error: $e");
       return null;
     }
+  }
+
+  Future _deleteExpiredFiles() async {
+    final directoryPath = await _downloadDirectory;
+    Directory directory = Directory(directoryPath);
+
+    String date = DateTime.now().toString().substring(0, 10);
+    directory.list(recursive: true).forEach((element) {
+      if (element.path.contains(date)) {
+        element.delete();
+      }
+    });
   }
 }

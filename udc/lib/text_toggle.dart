@@ -16,7 +16,7 @@ class TextToggle extends StatefulWidget {
 
   TextToggle(this.buttonDatas, this.buttonWidth, this.buttonHeight,
       this.onValueChanged,
-      {Key key,
+      {Key? key,
       this.unselectedWidthDiff = 0,
       this.unselectedHeightDiff = 0,
       this.defaultItemIndex = 0,
@@ -30,7 +30,7 @@ class TextToggle extends StatefulWidget {
 }
 
 class TextToggleState extends State<TextToggle> {
-  String _selectedValue;
+  String? _selectedValue;
 
   @override
   void initState() {
@@ -72,9 +72,9 @@ class TextToggleState extends State<TextToggle> {
 
   void _onValueChanged() {
     if (_selectedValue != null &&
-        _selectedValue.trim() != null &&
+        _selectedValue!.trim() != null &&
         widget.onValueChanged != null) {
-      widget.onValueChanged(_selectedValue);
+      widget.onValueChanged(_selectedValue!);
     }
   }
 
@@ -101,7 +101,7 @@ class TExtButton extends StatelessWidget {
 
   const TExtButton(
       this.value, this.text, this.iconName, this.selected, this.onPressed,
-      {Key key,
+      {Key? key,
       this.width = 150,
       this.height = 45,
       this.unselectedWidthDiff = 0,

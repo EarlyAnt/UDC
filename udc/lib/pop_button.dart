@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 class PopButton extends StatefulWidget {
   final String normalImage;
   final String tapDownImage;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
-  PopButton(this.normalImage, this.tapDownImage, {Key key, this.onPressed})
+  PopButton(this.normalImage, this.tapDownImage, {Key? key, this.onPressed})
       : super(key: key);
 
   @override
@@ -29,7 +29,7 @@ class _PopButtonState extends State<PopButton> {
         setState(() {
           _tapDown = false;
           if (widget.onPressed != null) {
-            widget.onPressed();
+            widget.onPressed!();
           }
           // print("onTapUp");
         });

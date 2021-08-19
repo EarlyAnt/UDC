@@ -16,7 +16,7 @@ class ImageToggle extends StatefulWidget {
 
   ImageToggle(this.buttonDatas, this.buttonWidth, this.buttonHeight,
       this.onValueChanged,
-      {Key key,
+      {Key? key,
       this.unselectedWidthDiff = 0,
       this.unselectedHeightDiff = 0,
       this.splitWidth = 0,
@@ -30,7 +30,7 @@ class ImageToggle extends StatefulWidget {
 }
 
 class ImageToggleState extends State<ImageToggle> {
-  String _selectedValue;
+  String? _selectedValue;
 
   @override
   void initState() {
@@ -76,9 +76,9 @@ class ImageToggleState extends State<ImageToggle> {
 
   void _onValueChanged() {
     if (_selectedValue != null &&
-        _selectedValue.trim() != null &&
+        _selectedValue!.trim() != null &&
         widget.onValueChanged != null) {
-      widget.onValueChanged(_selectedValue);
+      widget.onValueChanged(_selectedValue!);
     }
   }
 
@@ -103,7 +103,7 @@ class ImageButton extends StatelessWidget {
   final bool selected;
 
   const ImageButton(this.value, this.iconName, this.selected, this.onPressed,
-      {Key key,
+      {Key? key,
       this.width = 150,
       this.height = 45,
       this.unselectedWidthDiff = 0,

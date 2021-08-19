@@ -50,10 +50,10 @@ class _CollectorState extends State<Collector> {
   final GlobalKey<TextToggleState> _tagKey = GlobalKey();
 
   UserData _userData = UserData();
-  List<String> _userDataList = [];
+  List<String>? _userDataList = [];
   Storage _storage = Storage();
-  int get _userCount => _userDataList != null && _userDataList.length > 0
-      ? _userDataList.length - 1
+  int get _userCount => _userDataList != null && _userDataList!.length > 0
+      ? _userDataList!.length - 1
       : 0;
 
   @override
@@ -288,38 +288,38 @@ class _CollectorState extends State<Collector> {
     );
   }
 
-  Future<File> _saveData() async {
+  Future<File?> _saveData() async {
     if (_userDataList == null) {
       _userDataList = [];
     }
 
-    if (_userDataList.length == 0) {
-      String title = "date,time,id,sex,family,age,expense,tag\n";
-      _userDataList.add(title);
+    if (_userDataList!.length == 0) {
+      String title = "date,time,id,sex,family,age,expense,tag";
+      _userDataList!.add(title);
     }
 
     _userData.id = _userCount + 1;
-    _userDataList.add("${_userData.toString()}");
+    _userDataList!.add("${_userData.toString()}");
 
     String fileCountent = "";
-    for (var line in _userDataList) {
+    for (var line in _userDataList!) {
       fileCountent += "$line\n";
     }
     var result = await _storage.writeData(fileCountent);
     print("${_userData.toString()}");
 
     setState(() {
-      _sexKey.currentState.refresh();
-      _familyKey.currentState.refresh();
-      _ageKey.currentState.refresh();
-      _expenseKey.currentState.refresh();
-      _tagKey.currentState.refresh();
+      _sexKey.currentState?.refresh();
+      _familyKey.currentState?.refresh();
+      _ageKey.currentState?.refresh();
+      _expenseKey.currentState?.refresh();
+      _tagKey.currentState?.refresh();
     });
     return result;
   }
 
   void _readData() async {
-    List<String> fileContent = await _storage.readData();
+    List<String>? fileContent = await _storage.readData();
     setState(() {
       _userDataList = fileContent;
     });
