@@ -17,7 +17,7 @@ class Storage {
 
     bool existed = await customDirectory!.exists();
     if (!existed) {
-      await customDirectory.create();
+      await customDirectory.create(recursive: true);
     }
 
     print("<><Storage._packageDirectory>file path: ${customDirectory.path}");
@@ -37,7 +37,7 @@ class Storage {
 
     bool existed = await customDirectory!.exists();
     if (!existed) {
-      await customDirectory.create();
+      await customDirectory.create(recursive: true);
     }
 
     print("<><Storage._downloadDirectory>file path: ${customDirectory.path}");
@@ -79,15 +79,26 @@ class Storage {
   //保存文件
   Future<File?> writeData(String data) async {
     try {
-      var sourceFilePath = await _sourceFilePath;
-      var sourceFile = File(sourceFilePath);
+      var file = File(await _sourceFilePath);
 
-      await _deleteExpiredFiles();
-      sourceFile.writeAsString(data, flush: true);
-      var backupFile = await _backupFilePath;
-      return sourceFile.copy("$backupFile");
+      return file.writeAsString(data, flush: true);
     } catch (e) {
       print("<><Storage.writeData>error: $e");
+      return null;
+    }
+  }
+
+  //备份文件
+  Future<File?> backupFile() async {
+    try {
+      await _deleteExpiredFiles();
+
+      var sourceFile = File(await _sourceFilePath);
+      var backupFile = await _backupFilePath;
+
+      return sourceFile.copy("$backupFile");
+    } catch (e) {
+      print("<><Storage._backupFile>error: $e");
       return null;
     }
   }
