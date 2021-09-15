@@ -91,9 +91,11 @@ class _StoreListViewState extends State<StoreListView> {
             style: TextStyle(color: Colors.black, fontSize: 20)),
         onPressed: () {
           print("selected store: ${storeData?.id}, ${storeData?.name}");
-          Navigator.of(context).push(MaterialPageRoute(builder: (subContext) {
-            return CollectorView();
-          }));
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (subContext) {
+                return CollectorView();
+              },
+              settings: RouteSettings(arguments: storeData)));
         });
   }
 

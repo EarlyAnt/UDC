@@ -68,6 +68,9 @@ class _CollectorViewState extends State<CollectorView> {
     //     [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     // SystemChrome.setEnabledSystemUIOverlays([]);
 
+    StoreData? storeData =
+        ModalRoute.of(context)?.settings.arguments as StoreData?;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -85,74 +88,106 @@ class _CollectorViewState extends State<CollectorView> {
             ],
           ),
           _options(),
-          Align(alignment: Alignment.topCenter, child: _titleBar()),
+          Align(
+              alignment: Alignment.topCenter,
+              child: _titleBar(context, storeData)),
         ],
       ),
     );
   }
 
-  Widget _titleBar() {
-    return Stack(
-      children: [
-        Align(
-          alignment: Alignment.topCenter,
-          child: Image.asset("assets/images/ui/title_bar.png"),
-        ),
-        Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _titleBar(BuildContext context, StoreData? storeData) {
+    return Container(
+        height: MediaQuery.of(context).size.height * 0.2,
+        // color: Colors.lightGreenAccent,
+        child: Stack(
           children: [
+            Image.asset("assets/images/ui/title_bar.png"),
             Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Padding(
-                  padding: EdgeInsets.only(left: 20, top: 12),
-                  child: Column(
-                    children: [
-                      Text("今日客人",
-                          style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold)),
-                      SizedBox(height: 6),
-                      Text(DateTime.now().toString().substring(0, 10),
-                          style: TextStyle(color: Colors.white, fontSize: 12)),
-                    ],
-                  ),
-                ),
-                SizedBox(width: 10),
-                Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: Column(children: [
-                    Text(
-                      "$_userCount",
-                      style: TextStyle(
-                          color: Color.fromRGBO(255, 214, 0, 1),
-                          fontSize: 32,
-                          fontWeight: FontWeight.w700),
+                Align(
+                    alignment: Alignment.topLeft,
+                    child: Padding(
+                        padding: EdgeInsets.only(top: 9),
+                        child: _back(context))),
+                Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 5, top: 12),
+                      child: Column(
+                        children: [
+                          Text("今日客人",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold)),
+                          SizedBox(height: 6),
+                          Text(DateTime.now().toString().substring(0, 10),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12)),
+                        ],
+                      ),
                     ),
-                    SizedBox(height: 15),
-                  ]),
+                    SizedBox(width: 10),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Column(children: [
+                        Text(
+                          "$_userCount",
+                          style: TextStyle(
+                              color: Color.fromRGBO(255, 214, 0, 1),
+                              fontSize: 32,
+                              fontWeight: FontWeight.w700),
+                        ),
+                        SizedBox(height: 15)
+                      ]),
+                    ),
+                    Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                            padding: EdgeInsets.only(top: 8, left: 30),
+                            child: _syncData())),
+                  ],
                 ),
               ],
             ),
+            Align(
+                alignment: Alignment.topCenter,
+                child: Padding(
+                    padding: EdgeInsets.only(top: 47),
+                    child: Text("${storeData?.name}",
+                        style: TextStyle(color: Colors.white, fontSize: 13)))),
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                  padding: EdgeInsets.only(top: 0, right: 160), child: _sex()),
+            ),
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                  padding: EdgeInsets.only(top: 0, right: 0), child: _submit()),
+            ),
           ],
-        ),
-        Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: EdgeInsets.only(top: 0, right: 160),
-            child: _sex(),
-          ),
-        ),
-        Align(
-          alignment: Alignment.topRight,
-          child: Padding(
-            padding: EdgeInsets.only(top: 0, right: 0),
-            child: _submit(),
-          ),
-        ),
-      ],
-    );
+        ));
+  }
+
+  Widget _back(BuildContext context) {
+    return IconButton(
+        icon: Image.asset("assets/images/ui/back.png", width: 24, height: 24),
+        onPressed: () {
+          Navigator.of(context).pop();
+        });
+  }
+
+  Widget _syncData() {
+    return IconButton(
+        icon: Image.asset("assets/images/ui/synchronous.png",
+            width: 28, height: 28),
+        onPressed: () {
+          print("同步数据");
+        });
   }
 
   Widget _options() {
