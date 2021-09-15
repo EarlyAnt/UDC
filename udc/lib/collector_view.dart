@@ -1,20 +1,20 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:udc/data.dart';
+import 'package:udc/data/data.dart';
 
-import 'file_util.dart';
-import 'image_toggle.dart';
-import 'pop_button.dart';
-import 'text_toggle.dart';
+import 'util/file_util.dart';
+import 'ui_component/image_toggle.dart';
+import 'ui_component/pop_button.dart';
+import 'ui_component/text_toggle.dart';
 import 'ui_data.dart';
 
-class Collector extends StatefulWidget {
+class CollectorView extends StatefulWidget {
   @override
-  _CollectorState createState() => _CollectorState();
+  _CollectorViewState createState() => _CollectorViewState();
 }
 
-class _CollectorState extends State<Collector> {
+class _CollectorViewState extends State<CollectorView> {
   final List<ImageButtonData> _sexOptions = [
     ImageButtonData("男", "male"),
     ImageButtonData("女", "female")

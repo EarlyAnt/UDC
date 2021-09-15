@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:udc/collector.dart';
+import 'package:udc/collector_view.dart';
+import 'package:udc/store_list_view.dart';
 
-class SplashScreen extends StatefulWidget {
-  SplashScreen({Key? key}) : super(key: key);
+class SplashScreenView extends StatefulWidget {
+  SplashScreenView({Key? key}) : super(key: key);
   @override
-  _SplashScreenState createState() {
-    return _SplashScreenState();
+  _SplashScreenViewState createState() {
+    return _SplashScreenViewState();
   }
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class _SplashScreenViewState extends State<SplashScreenView>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
@@ -31,8 +32,8 @@ class _SplashScreenState extends State<SplashScreen>
         Future.delayed(Duration(seconds: 1)).then((value) {
           Navigator.of(context).pushAndRemoveUntil(
               MaterialPageRoute(builder: (subContext) {
-            return Collector();
-          }), (route) => route == null);
+            return StoreListView();
+          }), (route) => route.settings.name == null);
         });
       }
     });

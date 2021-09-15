@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'splash_screen.dart';
+import 'splash_screen_view.dart';
 
 void main() {
   runApp(MyApp());
@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       // home: MyHomePage(title: 'Flutter Demo Home Page'),
-      home: SplashScreen(),
+      home: SplashScreenView(),
     );
   }
 }

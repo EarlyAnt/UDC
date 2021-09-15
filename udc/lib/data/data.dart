@@ -13,3 +13,10 @@ class UserData {
     return "$_date,$_time,$id,$sex,$family,$age,$expense,$tag";
   }
 }
+
+class StoreData {
+  final String? id;
+  final String? name;
+
+  StoreData(this.id, this.name);
+}

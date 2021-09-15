@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'ui_data.dart';
+import '../ui_data.dart';
 
 class TextToggle extends StatefulWidget {
   final List<TextButtonData> buttonDatas;
