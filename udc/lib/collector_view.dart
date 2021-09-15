@@ -298,7 +298,7 @@ class _CollectorViewState extends State<CollectorView> {
       _userDataList!.add(title);
     }
 
-    _userData.id = _userCount + 1;
+    _userData.storeId = "";
     _userDataList!.add("${_userData.toString()}");
 
     String fileCountent = "";
