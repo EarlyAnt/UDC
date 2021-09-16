@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:udc/collector_view.dart';
 
 import 'data/data.dart';
+import 'util/dio_util.dart';
 
 class StoreListView extends StatefulWidget {
   StoreListView({Key? key}) : super(key: key);
@@ -17,6 +18,9 @@ class StoreListView extends StatefulWidget {
 class _StoreListViewState extends State<StoreListView> {
   bool _loading = false;
   late List<StoreData>? _storeDataList;
+  int get _columnCount => _storeDataList != null && _storeDataList!.length <= 3
+      ? _storeDataList!.length
+      : 3;
 
   @override
   void initState() {
@@ -59,13 +63,15 @@ class _StoreListViewState extends State<StoreListView> {
 
     return Container(
         // color: Colors.lightGreenAccent,
-        width: screenSize.width * 0.5,
+        width: screenSize.width * 0.17 * _columnCount,
         height: screenSize.height * 0.4,
+        alignment: Alignment.center,
         child: GridView.builder(
             itemCount: _storeDataList!.length,
+            shrinkWrap: true,
             // physics: BouncingScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
+                crossAxisCount: _columnCount,
                 mainAxisSpacing: 10,
                 crossAxisSpacing: 10,
                 childAspectRatio: 3),
@@ -85,7 +91,7 @@ class _StoreListViewState extends State<StoreListView> {
             BorderSide(color: Color.fromRGBO(183, 183, 183, 1), width: 2),
           ),
           //背景
-          backgroundColor: MaterialStateProperty.all(Colors.transparent),
+          // backgroundColor: MaterialStateProperty.all(Colors.lightBlueAccent),
         ),
         child: Text(storeData?.name ?? "",
             style: TextStyle(color: Colors.black, fontSize: 20)),
@@ -101,26 +107,30 @@ class _StoreListViewState extends State<StoreListView> {
 
   void _loadStoreData() async {
     try {
-      Dio dio = Dio();
-      (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (client) {
-        client.badCertificateCallback = (cert, host, port) {
-          return true;
-        };
-      };
-
       _loading = true;
-      // Response response;
-      // response = await dio.get("https://collector.kayou.gululu.com/api/store");
+      Response response =
+          await Dio().get("https://collector.kayou.gululu.com/api/store");
+
       setState(() {
-        // _storeDataList = json.decode(response.data);
-        _storeDataList = [
-          StoreData("1", "上海张江"),
-          StoreData("2", "上海七宝"),
-          StoreData("3", "上海嘉定"),
-          StoreData("4", "苏州园区"),
-          StoreData("5", "苏州太湖")
-        ];
+        List dataList = response.data["data"]["list"];
+        _storeDataList = [];
+
+        for (var item in dataList) {
+          _storeDataList!.add(StoreData(item["id"].toString(), item["name"]));
+        }
+
+        // _storeDataList = [
+        //   StoreData("1", "上海张江"),
+        //   StoreData("2", "上海七宝"),
+        //   StoreData("3", "上海嘉定"),
+        //   StoreData("4", "苏州园区"),
+        //   StoreData("5", "苏州太湖"),
+        //   // StoreData("1", "上海张江"),
+        //   // StoreData("2", "上海七宝"),
+        //   // StoreData("3", "上海嘉定"),
+        //   // StoreData("4", "苏州园区"),
+        //   // StoreData("5", "苏州太湖")
+        // ];
         _loading = false;
       });
     } catch (e) {

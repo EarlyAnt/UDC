@@ -28,10 +28,10 @@ class DioUtils {
   static const String DELETE = 'delete';
 
   ///Get请求测试
-  static void getHttp() async {
+  static void getHttp(String url) async {
     try {
-      Response response = await Dio().get("http://www.google.cn");
-      print("response$response");
+      Response response = await Dio().get(url);
+      print(response);
     } catch (e) {
       print(e);
     }
