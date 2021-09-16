@@ -1,8 +1,11 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udc/data/data.dart';
 
+import 'util/dio_util.dart';
 import 'util/file_util.dart';
 import 'ui_component/image_toggle.dart';
 import 'ui_component/pop_button.dart';
@@ -50,11 +53,13 @@ class _CollectorViewState extends State<CollectorView> {
   final GlobalKey<TextToggleState> _tagKey = GlobalKey();
 
   UserData _userData = UserData();
-  List<String>? _userDataList = [];
+  List<UserData>? _userDataList = [];
   Storage _storage = Storage();
-  int get _userCount => _userDataList != null && _userDataList!.length > 0
-      ? _userDataList!.length - 1
-      : 0;
+  StoreData? _storeData;
+  int? _todayUserCount;
+  SharedPreferences? _playerPrefs;
+  final String _dataKeyCount = "data_count";
+  final String _dataKeyList = "data_list";
 
   @override
   void initState() {
@@ -68,8 +73,7 @@ class _CollectorViewState extends State<CollectorView> {
     //     [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
     // SystemChrome.setEnabledSystemUIOverlays([]);
 
-    StoreData? storeData =
-        ModalRoute.of(context)?.settings.arguments as StoreData?;
+    _storeData = ModalRoute.of(context)?.settings.arguments as StoreData?;
 
     return Scaffold(
       body: Stack(
@@ -88,15 +92,13 @@ class _CollectorViewState extends State<CollectorView> {
             ],
           ),
           _options(),
-          Align(
-              alignment: Alignment.topCenter,
-              child: _titleBar(context, storeData)),
+          Align(alignment: Alignment.topCenter, child: _titleBar(context)),
         ],
       ),
     );
   }
 
-  Widget _titleBar(BuildContext context, StoreData? storeData) {
+  Widget _titleBar(BuildContext context) {
     return Container(
         height: MediaQuery.of(context).size.height * 0.2,
         // color: Colors.lightGreenAccent,
@@ -135,7 +137,7 @@ class _CollectorViewState extends State<CollectorView> {
                       padding: EdgeInsets.only(top: 10),
                       child: Column(children: [
                         Text(
-                          "$_userCount",
+                          "${_todayUserCount ?? 0}",
                           style: TextStyle(
                               color: Color.fromRGBO(255, 214, 0, 1),
                               fontSize: 32,
@@ -157,7 +159,7 @@ class _CollectorViewState extends State<CollectorView> {
                 alignment: Alignment.topCenter,
                 child: Padding(
                     padding: EdgeInsets.only(top: 47),
-                    child: Text("${storeData?.name}",
+                    child: Text("${_storeData?.name}",
                         style: TextStyle(color: Colors.white, fontSize: 13)))),
             Align(
               alignment: Alignment.topRight,
@@ -317,26 +319,70 @@ class _CollectorViewState extends State<CollectorView> {
       height: 76.8,
       child: PopButton("assets/images/ui/submit_selected.png",
           "assets/images/ui/submit_unselected.png", onPressed: () {
-        _saveData();
-        // _readData();
+        _saveDataToServer();
       }),
     );
   }
 
-  Future<File?> _saveData() async {
+  Future _saveDataToServer() async {
+    try {
+      _userData.storeId = _storeData?.id;
+      _userData.upload = true;
+      List<UserData> userDataList = [_userData.getFullData()];
+      Map body = Map();
+      body["list"] = userDataList;
+
+      DioUtils.postHttp(
+        'https://collector.kayou.gululu.com/api/record',
+        parameters: body,
+        onSuccess: (data) {
+          print(data);
+          _saveDataToBuffer();
+        },
+        onError: (errorText) {
+          print(errorText);
+        },
+      );
+    } catch (e) {
+      print(e);
+
+      _userData.upload = false;
+      _saveDataToBuffer();
+    }
+  }
+
+  Future<File?> _saveDataToBuffer() async {
+    try {
+      if (_userDataList == null) {
+        _userDataList = [];
+      }
+
+      _userDataList!.add(_userData.getFullData());
+      String dataString = json.encode(_userDataList);
+      _playerPrefs?.setString(_dataKeyList, dataString);
+
+      _todayUserCount = (_todayUserCount ?? 0) + 1;
+      _playerPrefs?.setInt(_dataKeyCount, _todayUserCount!);
+
+      setState(() {
+        _sexKey.currentState?.refresh();
+        _familyKey.currentState?.refresh();
+        _ageKey.currentState?.refresh();
+        _expenseKey.currentState?.refresh();
+        _tagKey.currentState?.refresh();
+      });
+      print("_saveStoreData: $dataString");
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<File?> _saveDataToFile() async {
     if (_userDataList == null) {
-      _userDataList = [];
+      return null;
     }
 
-    if (_userDataList!.length == 0) {
-      String title = "date,time,id,sex,family,age,expense,tag";
-      _userDataList!.add(title);
-    }
-
-    _userData.storeId = "";
-    _userDataList!.add("${_userData.toString()}");
-
-    String fileCountent = "";
+    String fileCountent = "date,time,id,sex,family,age,expense,tag,upload";
     for (var line in _userDataList!) {
       fileCountent += "$line\n";
     }
@@ -354,9 +400,27 @@ class _CollectorViewState extends State<CollectorView> {
   }
 
   void _readData() async {
-    List<String>? fileContent = await _storage.readData();
+    _playerPrefs = await SharedPreferences.getInstance();
     setState(() {
-      _userDataList = fileContent;
+      _userDataList = [];
+      if (_playerPrefs!.containsKey(_dataKeyList)) {
+        String? dataString = _playerPrefs!.getString(_dataKeyList);
+        List list = json.decode(dataString!);
+        for (var item in list) {
+          UserData userData = UserData.fromJson(item);
+          _userDataList?.add(userData);
+        }
+
+        print("_readData: $_userDataList");
+      } else {
+        print("can not find the user data locally");
+      }
+
+      if (!_playerPrefs!.containsKey(_dataKeyCount)) {
+        _todayUserCount = 0;
+      } else {
+        _todayUserCount = _playerPrefs?.getInt(_dataKeyCount);
+      }
     });
   }
 }
