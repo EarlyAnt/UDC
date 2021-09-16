@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udc/collector_view.dart';
 
 import 'data/data.dart';
@@ -21,11 +22,14 @@ class _StoreListViewState extends State<StoreListView> {
   int get _columnCount => _storeDataList != null && _storeDataList!.length <= 3
       ? _storeDataList!.length
       : 3;
+  SharedPreferences? _playerPrefs;
+  final String _dataKey = "store_list";
 
   @override
   void initState() {
     super.initState();
-    _loadStoreData();
+    _initPlayerPrefs();
+    _loadStoreDataFromServer();
   }
 
   @override
@@ -105,9 +109,14 @@ class _StoreListViewState extends State<StoreListView> {
         });
   }
 
-  void _loadStoreData() async {
+  void _initPlayerPrefs() async {
+    this._playerPrefs = await SharedPreferences.getInstance();
+  }
+
+  void _loadStoreDataFromServer() async {
     try {
       _loading = true;
+
       Response response =
           await Dio().get("https://collector.kayou.gululu.com/api/store");
 
@@ -118,6 +127,7 @@ class _StoreListViewState extends State<StoreListView> {
         for (var item in dataList) {
           _storeDataList!.add(StoreData(item["id"].toString(), item["name"]));
         }
+        print("_loadStoreDataFromServer: $_storeDataList");
 
         // _storeDataList = [
         //   StoreData("1", "上海张江"),
@@ -131,8 +141,50 @@ class _StoreListViewState extends State<StoreListView> {
         //   // StoreData("4", "苏州园区"),
         //   // StoreData("5", "苏州太湖")
         // ];
+
+        _saveStoreData(); //保存门店列表
         _loading = false;
       });
+    } catch (e) {
+      print(e);
+      _loadStoreDataFromLocal();
+    }
+  }
+
+  void _loadStoreDataFromLocal() {
+    try {
+      if (this._playerPrefs!.containsKey(_dataKey)) {
+        _loading = true;
+
+        setState(() {
+          _storeDataList = [];
+          String? dataString = this._playerPrefs!.getString(_dataKey);
+          List list = json.decode(dataString!);
+          for (var item in list) {
+            StoreData storeData = StoreData.fromJson(item);
+            _storeDataList?.add(storeData);
+          }
+
+          _loading = false;
+        });
+        print("_loadStoreDataFromLocal: $_storeDataList");
+      } else {
+        print("can not find the store list locally");
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  void _saveStoreData() {
+    try {
+      if (_storeDataList == null) {
+        throw "argument [_storeDataList] is null";
+      }
+
+      String dataString = json.encode(_storeDataList);
+      this._playerPrefs?.setString(_dataKey, dataString);
+      print("_saveStoreData: $dataString");
     } catch (e) {
       print(e);
     }

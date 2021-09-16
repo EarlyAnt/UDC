@@ -3,6 +3,17 @@ class StoreData {
   final String? name;
 
   StoreData(this.id, this.name);
+
+  Map toJson() {
+    Map map = Map();
+    map["id"] = id;
+    map["name"] = name;
+    return map;
+  }
+
+  factory StoreData.fromJson(Map json) {
+    return StoreData(json["id"], json["name"]);
+  }
 }
 
 class UserData {
