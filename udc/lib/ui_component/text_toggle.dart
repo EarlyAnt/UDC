@@ -71,15 +71,13 @@ class TextToggleState extends State<TextToggle> {
   }
 
   void _onValueChanged() {
-    if (_selectedValue != null &&
-        _selectedValue!.trim() != null &&
-        widget.onValueChanged != null) {
+    if (_selectedValue != null && _selectedValue!.trim().isNotEmpty) {
       widget.onValueChanged(_selectedValue!);
     }
   }
 
   void refresh() {
-    _selectedValue = widget.buttonDatas != null &&
+    _selectedValue = widget.buttonDatas.length > 0 &&
             widget.defaultItemIndex >= 0 &&
             widget.defaultItemIndex < widget.buttonDatas.length
         ? widget.buttonDatas[widget.defaultItemIndex].value

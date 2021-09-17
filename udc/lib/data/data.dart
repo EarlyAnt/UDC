@@ -18,6 +18,27 @@ class StoreData {
   }
 }
 
+class TodayUserCount {
+  String? date;
+  int? count;
+
+  TodayUserCount(this.date, this.count);
+
+  Map toJson() {
+    Map map = Map();
+    map["date"] = date;
+    map["count"] = count;
+    return map;
+  }
+
+  static TodayUserCount get empty =>
+      TodayUserCount(DateTime.now().toString().substring(0, 10), 0);
+
+  factory TodayUserCount.fromJson(Map map) {
+    return TodayUserCount(map["date"], map["count"]);
+  }
+}
+
 class UserData {
   String? time;
   String? storeId;

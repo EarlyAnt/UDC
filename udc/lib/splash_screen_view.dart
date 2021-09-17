@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:udc/collector_view.dart';
 import 'package:udc/store_list_view.dart';
 
 class SplashScreenView extends StatefulWidget {

@@ -1,13 +1,11 @@
 import 'dart:convert';
 
-import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udc/collector_view.dart';
 
 import 'data/data.dart';
-import 'util/dio_util.dart';
 
 class StoreListView extends StatefulWidget {
   StoreListView({Key? key}) : super(key: key);

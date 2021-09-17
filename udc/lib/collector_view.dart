@@ -1,12 +1,10 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udc/data/data.dart';
 
 import 'util/dio_util.dart';
-import 'util/file_util.dart';
 import 'ui_component/image_toggle.dart';
 import 'ui_component/pop_button.dart';
 import 'ui_component/text_toggle.dart';
@@ -17,7 +15,8 @@ class CollectorView extends StatefulWidget {
   _CollectorViewState createState() => _CollectorViewState();
 }
 
-class _CollectorViewState extends State<CollectorView> {
+class _CollectorViewState extends State<CollectorView>
+    with TickerProviderStateMixin {
   final List<ImageButtonData> _sexOptions = [
     ImageButtonData("男", "male"),
     ImageButtonData("女", "female")
@@ -52,14 +51,16 @@ class _CollectorViewState extends State<CollectorView> {
   final GlobalKey<TextToggleState> _expenseKey = GlobalKey();
   final GlobalKey<TextToggleState> _tagKey = GlobalKey();
 
-  UserData _userData = UserData();
-  List<UserData>? _userDataList = [];
-  Storage _storage = Storage();
-  StoreData? _storeData;
-  int? _todayUserCount;
-  SharedPreferences? _playerPrefs;
   final String _dataKeyCount = "data_count";
   final String _dataKeyList = "data_list";
+  final int _bufferThreshold = 2;
+
+  late TodayUserCount _todayUserCount;
+  UserData _userData = UserData();
+  List<UserData>? _userDataList = [];
+  StoreData? _storeData;
+  SharedPreferences? _playerPrefs;
+  AnimationController? _controller;
 
   @override
   void initState() {
@@ -69,11 +70,30 @@ class _CollectorViewState extends State<CollectorView> {
 
   @override
   Widget build(BuildContext context) {
-    // SystemChrome.setPreferredOrientations(
-    //     [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight]);
-    // SystemChrome.setEnabledSystemUIOverlays([]);
-
     _storeData = ModalRoute.of(context)?.settings.arguments as StoreData?;
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 1500),
+        lowerBound: 0.8,
+        upperBound: 1,
+        vsync: this);
+    _controller!.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        //动画从 controller.forward() 正向执行 结束时会回调此方法
+        Future.delayed(Duration(seconds: 1))
+            .then((value) => _controller!.reverse());
+        // print("status is completed");
+      } else if (status == AnimationStatus.dismissed) {
+        //动画从 controller.reverse() 反向执行 结束时会回调此方法
+        _controller!.forward();
+        // print("status is dismissed");
+      } else if (status == AnimationStatus.forward) {
+        // print("status is forward");
+        //执行 controller.forward() 会回调此状态
+      } else if (status == AnimationStatus.reverse) {
+        //执行 controller.reverse() 会回调此状态
+        // print("status is reverse");
+      }
+    });
 
     return Scaffold(
       body: Stack(
@@ -137,7 +157,7 @@ class _CollectorViewState extends State<CollectorView> {
                       padding: EdgeInsets.only(top: 10),
                       child: Column(children: [
                         Text(
-                          "${_todayUserCount ?? 0}",
+                          "${_todayUserCount.count}",
                           style: TextStyle(
                               color: Color.fromRGBO(255, 214, 0, 1),
                               fontSize: 32,
@@ -184,17 +204,23 @@ class _CollectorViewState extends State<CollectorView> {
   }
 
   Widget _syncData() {
-    return IconButton(
+    IconButton staticButton = IconButton(
         icon: Image.asset("assets/images/ui/synchronous.png",
-            color: _userDataList == null || _userDataList!.length < 2
-                ? Colors.white
-                : Colors.redAccent,
-            width: 28,
-            height: 28),
+            width: 28, height: 28),
         onPressed: () {
           print("同步数据");
           _syncDataToSever();
         });
+
+    ScaleTransition dynamicButton =
+        ScaleTransition(scale: _controller!, child: staticButton);
+
+    if (_userDataList == null || _userDataList!.length < _bufferThreshold) {
+      return staticButton;
+    } else {
+      _controller!.forward();
+      return dynamicButton;
+    }
   }
 
   Widget _options() {
@@ -329,6 +355,12 @@ class _CollectorViewState extends State<CollectorView> {
     );
   }
 
+  bool _compareData(DateTime date1, DateTime date2) {
+    DateTime tempDate1 = DateTime(date1.year, date1.month, date1.day);
+    DateTime tempDate2 = DateTime(date2.year, date2.month, date2.day);
+    return tempDate1 == tempDate2;
+  }
+
   Future _saveDataToServer() async {
     try {
       _userData.storeId = _storeData?.id;
@@ -363,15 +395,20 @@ class _CollectorViewState extends State<CollectorView> {
         }
 
         _userDataList!.add(_userData);
-        String dataString = json.encode(_userDataList);
-        _playerPrefs?.setString(_dataKeyList, dataString);
+        String userDataString = json.encode(_userDataList);
+        _playerPrefs?.setString(_dataKeyList, userDataString);
         _userData = UserData();
-        print("<><CollectorView._saveDataToBuffer>data: $dataString");
+        print("<><CollectorView._saveDataToBuffer>data: $userDataString");
       }
 
       //本地记录今日客人数量
-      _todayUserCount = (_todayUserCount ?? 0) + 1;
-      _playerPrefs?.setInt(_dataKeyCount, _todayUserCount!);
+      if (_compareData(DateTime.parse(_todayUserCount.date!), DateTime.now())) {
+        _todayUserCount.count = _todayUserCount.count! + 1;
+      } else {
+        _todayUserCount = TodayUserCount.empty;
+      }
+      String? countDataString = json.encode(_todayUserCount);
+      _playerPrefs?.setString(_dataKeyCount, countDataString);
 
       setState(() {
         _sexKey.currentState?.refresh();
@@ -435,10 +472,11 @@ class _CollectorViewState extends State<CollectorView> {
         print("<><CollectorView._readData>can not find the user data locally");
       }
 
-      if (!_playerPrefs!.containsKey(_dataKeyCount)) {
-        _todayUserCount = 0;
+      if (_playerPrefs!.containsKey(_dataKeyCount)) {
+        Map map = json.decode(_playerPrefs!.getString(_dataKeyCount)!);
+        _todayUserCount = TodayUserCount.fromJson(map);
       } else {
-        _todayUserCount = _playerPrefs?.getInt(_dataKeyCount);
+        _todayUserCount = TodayUserCount.empty;
       }
     });
   }
