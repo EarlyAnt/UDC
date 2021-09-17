@@ -189,6 +189,7 @@ class _CollectorViewState extends State<CollectorView> {
             width: 28, height: 28),
         onPressed: () {
           print("同步数据");
+          _syncDataToSever();
         });
   }
 
@@ -327,8 +328,7 @@ class _CollectorViewState extends State<CollectorView> {
   Future _saveDataToServer() async {
     try {
       _userData.storeId = _storeData?.id;
-      _userData.upload = true;
-      List<UserData> userDataList = [_userData.getFullData()];
+      List<UserData> userDataList = [_userData];
       Map body = Map();
       body["list"] = userDataList;
 
@@ -336,31 +336,36 @@ class _CollectorViewState extends State<CollectorView> {
         'https://collector.kayou.gululu.com/api/record',
         parameters: body,
         onSuccess: (data) {
-          print(data);
-          _saveDataToBuffer();
+          print("<><CollectorView._saveDataToServer>success: $data");
+          _saveDataToBuffer(true);
         },
         onError: (errorText) {
-          print(errorText);
+          print("<><CollectorView._saveDataToServer>error: $errorText");
+          _saveDataToBuffer(false);
         },
       );
     } catch (e) {
-      print(e);
-
-      _userData.upload = false;
-      _saveDataToBuffer();
+      print("<><CollectorView._saveDataToServer>exception: $e");
+      _saveDataToBuffer(false);
     }
   }
 
-  Future<File?> _saveDataToBuffer() async {
+  Future _saveDataToBuffer(bool uploaded) async {
     try {
-      if (_userDataList == null) {
-        _userDataList = [];
+      if (!uploaded) {
+        //如果当前用户数据未上传成功，则记录到本地
+        if (_userDataList == null) {
+          _userDataList = [];
+        }
+
+        _userDataList!.add(_userData);
+        String dataString = json.encode(_userDataList);
+        _playerPrefs?.setString(_dataKeyList, dataString);
+        _userData = UserData();
+        print("<><CollectorView._saveDataToBuffer>data: $dataString");
       }
 
-      _userDataList!.add(_userData.getFullData());
-      String dataString = json.encode(_userDataList);
-      _playerPrefs?.setString(_dataKeyList, dataString);
-
+      //本地记录今日客人数量
       _todayUserCount = (_todayUserCount ?? 0) + 1;
       _playerPrefs?.setInt(_dataKeyCount, _todayUserCount!);
 
@@ -371,32 +376,38 @@ class _CollectorViewState extends State<CollectorView> {
         _expenseKey.currentState?.refresh();
         _tagKey.currentState?.refresh();
       });
-      print("_saveStoreData: $dataString");
     } catch (e) {
-      print(e);
+      print("<><CollectorView._saveDataToBuffer>exception: $e");
     }
   }
 
-  Future<File?> _saveDataToFile() async {
-    if (_userDataList == null) {
-      return null;
-    }
+  Future _syncDataToSever() async {
+    try {
+      //拷贝数据并清空本地缓存
+      List<UserData> syncDataList = [];
+      syncDataList.addAll(_userDataList!);
+      _userDataList!.clear();
+      _playerPrefs?.remove(_dataKeyList);
 
-    String fileCountent = "date,time,id,sex,family,age,expense,tag,upload";
-    for (var line in _userDataList!) {
-      fileCountent += "$line\n";
-    }
-    var result = await _storage.writeData(fileCountent);
-    print("${_userData.toString()}");
+      if (syncDataList.length == 0) return;
+      //上传数据
+      Map body = Map();
+      body["list"] = syncDataList;
 
-    setState(() {
-      _sexKey.currentState?.refresh();
-      _familyKey.currentState?.refresh();
-      _ageKey.currentState?.refresh();
-      _expenseKey.currentState?.refresh();
-      _tagKey.currentState?.refresh();
-    });
-    return result;
+      DioUtils.postHttp(
+        'https://collector.kayou.gululu.com/api/record',
+        parameters: body,
+        onSuccess: (data) {
+          print("<><CollectorView._syncDataToSever>success: $data");
+        },
+        onError: (errorText) {
+          print("<><CollectorView._syncDataToSever>error: $errorText");
+        },
+      );
+    } catch (e) {
+      print("<><CollectorView._syncDataToSever>exception: $e");
+      _saveDataToBuffer(false);
+    }
   }
 
   void _readData() async {
@@ -411,9 +422,10 @@ class _CollectorViewState extends State<CollectorView> {
           _userDataList?.add(userData);
         }
 
-        print("_readData: $_userDataList");
+        print(
+            "<><CollectorView._readData>data list length: ${_userDataList?.length}");
       } else {
-        print("can not find the user data locally");
+        print("<><CollectorView._readData>can not find the user data locally");
       }
 
       if (!_playerPrefs!.containsKey(_dataKeyCount)) {
