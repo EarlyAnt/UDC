@@ -186,7 +186,11 @@ class _CollectorViewState extends State<CollectorView> {
   Widget _syncData() {
     return IconButton(
         icon: Image.asset("assets/images/ui/synchronous.png",
-            width: 28, height: 28),
+            color: _userDataList == null || _userDataList!.length < 2
+                ? Colors.white
+                : Colors.redAccent,
+            width: 28,
+            height: 28),
         onPressed: () {
           print("同步数据");
           _syncDataToSever();
@@ -386,8 +390,6 @@ class _CollectorViewState extends State<CollectorView> {
       //拷贝数据并清空本地缓存
       List<UserData> syncDataList = [];
       syncDataList.addAll(_userDataList!);
-      _userDataList!.clear();
-      _playerPrefs?.remove(_dataKeyList);
 
       if (syncDataList.length == 0) return;
       //上传数据
@@ -399,6 +401,11 @@ class _CollectorViewState extends State<CollectorView> {
         parameters: body,
         onSuccess: (data) {
           print("<><CollectorView._syncDataToSever>success: $data");
+          setState(() {
+            //上传数据成功后，清空本地数据
+            _userDataList!.clear();
+            _playerPrefs?.remove(_dataKeyList);
+          });
         },
         onError: (errorText) {
           print("<><CollectorView._syncDataToSever>error: $errorText");
