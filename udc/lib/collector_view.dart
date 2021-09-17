@@ -2,8 +2,9 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:udc/data/data.dart';
 
+import 'data/data.dart';
+import 'ui_component/toast.dart';
 import 'util/dio_util.dart';
 import 'ui_component/image_toggle.dart';
 import 'ui_component/pop_button.dart';
@@ -55,7 +56,7 @@ class _CollectorViewState extends State<CollectorView>
   final String _dataKeyList = "data_list";
   final int _bufferThreshold = 2;
 
-  late TodayUserCount _todayUserCount;
+  TodayUserCount _todayUserCount = TodayUserCount.empty;
   UserData _userData = UserData();
   List<UserData>? _userDataList = [];
   StoreData? _storeData;
@@ -69,6 +70,13 @@ class _CollectorViewState extends State<CollectorView>
   }
 
   @override
+  void dispose() {
+    _controller?.dispose();
+    _controller = null;
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     _storeData = ModalRoute.of(context)?.settings.arguments as StoreData?;
     _controller = AnimationController(
@@ -79,8 +87,11 @@ class _CollectorViewState extends State<CollectorView>
     _controller!.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         //动画从 controller.forward() 正向执行 结束时会回调此方法
-        Future.delayed(Duration(seconds: 1))
-            .then((value) => _controller!.reverse());
+        Future.delayed(Duration(seconds: 1)).then((value) {
+          if (_controller != null) {
+            _controller!.reverse();
+          }
+        });
         // print("status is completed");
       } else if (status == AnimationStatus.dismissed) {
         //动画从 controller.reverse() 反向执行 结束时会回调此方法
@@ -373,15 +384,17 @@ class _CollectorViewState extends State<CollectorView>
         parameters: body,
         onSuccess: (data) {
           print("<><CollectorView._saveDataToServer>success: $data");
-          _saveDataToBuffer(true);
+          _saveDataToBuffer(_isSuccess(data));
         },
         onError: (errorText) {
           print("<><CollectorView._saveDataToServer>error: $errorText");
+          // MessageBox.show("提交数据失败[error]: $errorText");
           _saveDataToBuffer(false);
         },
       );
     } catch (e) {
       print("<><CollectorView._saveDataToServer>exception: $e");
+      // MessageBox.show("提交数据失败[exception]: $e");
       _saveDataToBuffer(false);
     }
   }
@@ -419,6 +432,7 @@ class _CollectorViewState extends State<CollectorView>
       });
     } catch (e) {
       print("<><CollectorView._saveDataToBuffer>exception: $e");
+      // MessageBox.show("保存本地数据失败[error]: $e");
     }
   }
 
@@ -438,19 +452,22 @@ class _CollectorViewState extends State<CollectorView>
         parameters: body,
         onSuccess: (data) {
           print("<><CollectorView._syncDataToSever>success: $data");
-          setState(() {
-            //上传数据成功后，清空本地数据
-            _userDataList!.clear();
-            _playerPrefs?.remove(_dataKeyList);
-          });
+          if (_isSuccess(data)) {
+            setState(() {
+              //上传数据成功后，清空本地数据
+              _userDataList!.clear();
+              _playerPrefs?.remove(_dataKeyList);
+            });
+          }
         },
         onError: (errorText) {
           print("<><CollectorView._syncDataToSever>error: $errorText");
+          // MessageBox.show("同步数据失败[error]: $errorText");
         },
       );
     } catch (e) {
       print("<><CollectorView._syncDataToSever>exception: $e");
-      _saveDataToBuffer(false);
+      // MessageBox.show("同步数据失败[exception]: $e");
     }
   }
 
@@ -479,5 +496,18 @@ class _CollectorViewState extends State<CollectorView>
         _todayUserCount = TodayUserCount.empty;
       }
     });
+  }
+
+  bool _isSuccess(Object? data) {
+    try {
+      if (data == null) return false;
+      Map map = json.decode(data.toString());
+      bool success =
+          map.containsKey("msg") && map["msg"].toString().toUpperCase() == "OK";
+      return success;
+    } catch (e) {
+      print(e);
+      return false;
+    }
   }
 }

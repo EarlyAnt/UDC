@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udc/collector_view.dart';
 
 import 'data/data.dart';
+import 'ui_component/toast.dart';
 
 class StoreListView extends StatefulWidget {
   StoreListView({Key? key}) : super(key: key);
@@ -145,6 +146,7 @@ class _StoreListViewState extends State<StoreListView> {
       });
     } catch (e) {
       print(e);
+      MessageBox.show("无法从服务器获取门店列表");
       _loadStoreDataFromLocal();
     }
   }
@@ -167,10 +169,11 @@ class _StoreListViewState extends State<StoreListView> {
         });
         print("_loadStoreDataFromLocal: $_storeDataList");
       } else {
-        print("can not find the store list locally");
+        MessageBox.show("无法从本地加载门店列表");
       }
     } catch (e) {
       print(e);
+      MessageBox.show("无法从本地加载门店列表: $e");
     }
   }
 
