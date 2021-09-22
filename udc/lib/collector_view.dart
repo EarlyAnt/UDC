@@ -206,6 +206,10 @@ class _CollectorViewState extends State<CollectorView>
               child: Padding(
                   padding: EdgeInsets.only(top: 0, right: 0), child: _submit()),
             ),
+            // Align(
+            //   alignment: Alignment.topCenter,
+            //   child: Padding(padding: EdgeInsets.only(top: 3), child: _test()),
+            // ),
           ],
         ));
   }
@@ -215,6 +219,24 @@ class _CollectorViewState extends State<CollectorView>
         icon: Image.asset("assets/images/ui/back.png", width: 24, height: 24),
         onPressed: () {
           Navigator.of(context).pop();
+        });
+  }
+
+  Widget _test() {
+    return IconButton(
+        icon: Container(
+            color: Colors.amberAccent.withAlpha(150), width: 200, height: 50),
+        onPressed: () {
+          setState(() {
+            //设置日期为过去日期
+            TodayUserCount todayUserCount = TodayUserCount.empty;
+            todayUserCount.date = "2021-09-22";
+            todayUserCount.count = 8;
+            _todayUserCount = todayUserCount;
+            String? countDataString = json.encode(todayUserCount);
+            _playerPrefs?.setString(_dataKeyCount, countDataString);
+            print("<><CollectorView._test>countDataString: $countDataString");
+          });
         });
   }
 

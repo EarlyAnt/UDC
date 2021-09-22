@@ -9,7 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'UserDataCollector',
+      title: 'UDC',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
