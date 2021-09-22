@@ -42,6 +42,7 @@ class TodayUserCount {
 class UserData {
   String? time;
   String? storeId;
+  int? id;
   String? sex;
   String? family;
   String? age;
@@ -53,6 +54,7 @@ class UserData {
   UserData(
       {this.time,
       this.storeId,
+      this.id,
       this.sex,
       this.family,
       this.age,
@@ -63,9 +65,13 @@ class UserData {
     }
   }
 
+  void setTimestamp() {
+    this.time = this._currentTime;
+  }
+
   @override
   String toString() {
-    return json.encode(toJson());
+    return "${time?.substring(0, 10)},${time?.substring(11, 19)},$id,$sex,$family,$age,$expense,$tag";
   }
 
   Map toJson() {

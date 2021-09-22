@@ -58,6 +58,13 @@ class Storage {
     return "$directory/user_data_${DateTime.now().toString().substring(0, 19).replaceAll(' ', '_').replaceAll(':', '-')}.csv";
   }
 
+  //判断文件是否存在
+  Future<bool> fileExisted() async {
+    final filePath = await _sourceFilePath;
+    File file = File(filePath);
+    return file.exists();
+  }
+
   //读取文件
   Future<List<String>?> readData() async {
     try {
@@ -77,11 +84,12 @@ class Storage {
   }
 
   //保存文件
-  Future<File?> writeData(String data) async {
+  Future<File?> writeData(String data,
+      {FileMode fileMode = FileMode.write}) async {
     try {
       var file = File(await _sourceFilePath);
 
-      return file.writeAsString(data, flush: true);
+      return file.writeAsString(data, mode: fileMode, flush: true);
     } catch (e) {
       print("<><Storage.writeData>error: $e");
       return null;

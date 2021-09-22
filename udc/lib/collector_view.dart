@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,6 +11,7 @@ import 'ui_component/image_toggle.dart';
 import 'ui_component/pop_button.dart';
 import 'ui_component/text_toggle.dart';
 import 'ui_data.dart';
+import 'util/file_util.dart';
 
 class CollectorView extends StatefulWidget {
   @override
@@ -56,6 +58,7 @@ class _CollectorViewState extends State<CollectorView>
   final String _dataKeyList = "data_list";
   final int _bufferThreshold = 2;
 
+  final Storage _storage = Storage();
   TodayUserCount _todayUserCount = TodayUserCount.empty;
   UserData _userData = UserData();
   List<UserData>? _userDataList = [];
@@ -66,6 +69,7 @@ class _CollectorViewState extends State<CollectorView>
   @override
   void initState() {
     super.initState();
+    _checkNewDay();
     _readData();
   }
 
@@ -190,7 +194,7 @@ class _CollectorViewState extends State<CollectorView>
                 alignment: Alignment.topCenter,
                 child: Padding(
                     padding: EdgeInsets.only(top: 47),
-                    child: Text("${_storeData?.name}",
+                    child: Text(_getStoreName(),
                         style: TextStyle(color: Colors.white, fontSize: 13)))),
             Align(
               alignment: Alignment.topRight,
@@ -361,9 +365,24 @@ class _CollectorViewState extends State<CollectorView>
       height: 76.8,
       child: PopButton("assets/images/ui/submit_selected.png",
           "assets/images/ui/submit_unselected.png", onPressed: () {
-        _saveDataToServer();
+        _saveData();
       }),
     );
+  }
+
+  String _getStoreName() {
+    final int lengthLimit = 6;
+    if (_storeData != null &&
+        _storeData!.name != null &&
+        _storeData!.name!.isNotEmpty) {
+      if (_storeData!.name!.length <= lengthLimit) {
+        return _storeData!.name!;
+      } else {
+        return "${_storeData!.name!.substring(0, lengthLimit - 1)}...";
+      }
+    } else {
+      return "未知门店";
+    }
   }
 
   bool _compareData(DateTime date1, DateTime date2) {
@@ -372,9 +391,49 @@ class _CollectorViewState extends State<CollectorView>
     return tempDate1 == tempDate2;
   }
 
+  void _checkNewDay() async {
+    _playerPrefs = await SharedPreferences.getInstance();
+    if (_playerPrefs!.containsKey(_dataKeyCount)) {
+      Map map = json.decode(_playerPrefs!.getString(_dataKeyCount)!);
+      _todayUserCount = TodayUserCount.fromJson(map);
+    } else {
+      _todayUserCount = TodayUserCount.empty;
+    }
+
+    if (!_compareData(DateTime.parse(_todayUserCount.date!), DateTime.now())) {
+      _todayUserCount = TodayUserCount.empty;
+      setState(() {
+        String? countDataString = json.encode(_todayUserCount);
+        _playerPrefs?.setString(_dataKeyCount, countDataString);
+      });
+    }
+  }
+
+  void _saveData() async {
+    _userData.storeId = _storeData?.id;
+    _userData.id = (_todayUserCount.count ?? 0) + 1;
+    _userData.setTimestamp();
+    await _saveDataToServer();
+    await _saveDataToFile();
+
+    setState(() {
+      //本地记录今日客人数量
+      _checkNewDay();
+      _todayUserCount.count = _todayUserCount.count! + 1;
+      String? countDataString = json.encode(_todayUserCount);
+      _playerPrefs?.setString(_dataKeyCount, countDataString);
+
+      _userData = UserData();
+      _sexKey.currentState?.refresh();
+      _familyKey.currentState?.refresh();
+      _ageKey.currentState?.refresh();
+      _expenseKey.currentState?.refresh();
+      _tagKey.currentState?.refresh();
+    });
+  }
+
   Future _saveDataToServer() async {
     try {
-      _userData.storeId = _storeData?.id;
       List<UserData> userDataList = [_userData];
       Map body = Map();
       body["list"] = userDataList;
@@ -410,29 +469,33 @@ class _CollectorViewState extends State<CollectorView>
         _userDataList!.add(_userData);
         String userDataString = json.encode(_userDataList);
         _playerPrefs?.setString(_dataKeyList, userDataString);
-        _userData = UserData();
         print("<><CollectorView._saveDataToBuffer>data: $userDataString");
       }
-
-      //本地记录今日客人数量
-      if (_compareData(DateTime.parse(_todayUserCount.date!), DateTime.now())) {
-        _todayUserCount.count = _todayUserCount.count! + 1;
-      } else {
-        _todayUserCount = TodayUserCount.empty;
-      }
-      String? countDataString = json.encode(_todayUserCount);
-      _playerPrefs?.setString(_dataKeyCount, countDataString);
-
-      setState(() {
-        _sexKey.currentState?.refresh();
-        _familyKey.currentState?.refresh();
-        _ageKey.currentState?.refresh();
-        _expenseKey.currentState?.refresh();
-        _tagKey.currentState?.refresh();
-      });
     } catch (e) {
       print("<><CollectorView._saveDataToBuffer>exception: $e");
       // MessageBox.show("保存本地数据失败[error]: $e");
+    }
+  }
+
+  Future _saveDataToFile() async {
+    if (_userDataList == null) {
+      return null;
+    }
+
+    try {
+      String fileCountent = "";
+      bool fileExisted = await _storage.fileExisted();
+      if (!fileExisted) {
+        fileCountent = "date,time,id,sex,family,age,expense,tag\n";
+      }
+      fileCountent += "${_userData.toString()}\n";
+
+      var result =
+          await _storage.writeData(fileCountent, fileMode: FileMode.append);
+      print("$fileCountent");
+      return result;
+    } catch (e) {
+      print("<><CollectorView._saveDataToFile>exception: $e");
     }
   }
 
@@ -487,13 +550,6 @@ class _CollectorViewState extends State<CollectorView>
             "<><CollectorView._readData>data list length: ${_userDataList?.length}");
       } else {
         print("<><CollectorView._readData>can not find the user data locally");
-      }
-
-      if (_playerPrefs!.containsKey(_dataKeyCount)) {
-        Map map = json.decode(_playerPrefs!.getString(_dataKeyCount)!);
-        _todayUserCount = TodayUserCount.fromJson(map);
-      } else {
-        _todayUserCount = TodayUserCount.empty;
       }
     });
   }
