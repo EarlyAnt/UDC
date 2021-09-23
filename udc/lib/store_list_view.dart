@@ -1,12 +1,8 @@
-import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:udc/collector_view.dart';
 
 import 'data/data.dart';
-import 'ui_component/toast.dart';
+import 'data/store_data_util.dart';
 
 class StoreListView extends StatefulWidget {
   StoreListView({Key? key}) : super(key: key);
@@ -21,14 +17,11 @@ class _StoreListViewState extends State<StoreListView> {
   int get _columnCount => _storeDataList != null && _storeDataList!.length <= 3
       ? _storeDataList!.length
       : 3;
-  SharedPreferences? _playerPrefs;
-  final String _dataKey = "store_list";
 
   @override
   void initState() {
     super.initState();
-    _initPlayerPrefs();
-    _loadStoreDataFromServer();
+    _loadStoreData();
   }
 
   @override
@@ -108,86 +101,12 @@ class _StoreListViewState extends State<StoreListView> {
         });
   }
 
-  void _initPlayerPrefs() async {
-    this._playerPrefs = await SharedPreferences.getInstance();
-  }
-
-  void _loadStoreDataFromServer() async {
-    try {
-      _loading = true;
-
-      Response response =
-          await Dio().get("https://collector.kayou.gululu.com/api/store");
-
-      setState(() {
-        List dataList = response.data["data"]["list"];
-        _storeDataList = [];
-
-        for (var item in dataList) {
-          _storeDataList!.add(StoreData(item["id"].toString(), item["name"]));
-        }
-        print("_loadStoreDataFromServer: $_storeDataList");
-
-        // _storeDataList = [
-        //   StoreData("1", "上海张江"),
-        //   StoreData("2", "上海七宝"),
-        //   StoreData("3", "上海嘉定"),
-        //   StoreData("4", "苏州园区"),
-        //   StoreData("5", "苏州太湖"),
-        //   // StoreData("1", "上海张江"),
-        //   // StoreData("2", "上海七宝"),
-        //   // StoreData("3", "上海嘉定"),
-        //   // StoreData("4", "苏州园区"),
-        //   // StoreData("5", "苏州太湖")
-        // ];
-
-        _saveStoreData(); //保存门店列表
-        _loading = false;
-      });
-    } catch (e) {
-      print(e);
-      MessageBox.show("无法从服务器获取门店列表");
-      _loadStoreDataFromLocal();
-    }
-  }
-
-  void _loadStoreDataFromLocal() {
-    try {
-      if (this._playerPrefs!.containsKey(_dataKey)) {
-        _loading = true;
-
-        setState(() {
-          _storeDataList = [];
-          String? dataString = this._playerPrefs!.getString(_dataKey);
-          List list = json.decode(dataString!);
-          for (var item in list) {
-            StoreData storeData = StoreData.fromJson(item);
-            _storeDataList?.add(storeData);
-          }
-
-          _loading = false;
-        });
-        print("_loadStoreDataFromLocal: $_storeDataList");
-      } else {
-        MessageBox.show("无法从本地加载门店列表");
-      }
-    } catch (e) {
-      print(e);
-      MessageBox.show("无法从本地加载门店列表: $e");
-    }
-  }
-
-  void _saveStoreData() {
-    try {
-      if (_storeDataList == null) {
-        throw "argument [_storeDataList] is null";
-      }
-
-      String dataString = json.encode(_storeDataList);
-      this._playerPrefs?.setString(_dataKey, dataString);
-      print("_saveStoreData: $dataString");
-    } catch (e) {
-      print(e);
-    }
+  void _loadStoreData() async {
+    _loading = true;
+    await StoreDataUtil.loadStoreData();
+    setState(() {
+      _storeDataList = StoreDataUtil.storeDataList;
+      _loading = false;
+    });
   }
 }

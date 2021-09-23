@@ -1,17 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/data.dart';
-import 'ui_component/toast.dart';
-import 'util/dio_util.dart';
+import 'data/user_data_util.dart';
+import 'data/ui_data.dart';
 import 'ui_component/image_toggle.dart';
 import 'ui_component/pop_button.dart';
 import 'ui_component/text_toggle.dart';
-import 'ui_data.dart';
-import 'util/file_util.dart';
 
 class CollectorView extends StatefulWidget {
   @override
@@ -57,24 +51,19 @@ class _CollectorViewState extends State<CollectorView>
   final GlobalKey<TextToggleState> _ageKey = GlobalKey();
   final GlobalKey<TextToggleState> _expenseKey = GlobalKey();
   final GlobalKey<TextToggleState> _tagKey = GlobalKey();
-
-  final String _dataKeyCount = "data_count";
-  final String _dataKeyList = "data_list";
   final int _bufferThreshold = 2;
 
-  final Storage _storage = Storage();
-  TodayUserCount _todayUserCount = TodayUserCount.empty;
   UserData _userData = UserData();
-  List<UserData>? _userDataList = [];
   StoreData? _storeData;
-  SharedPreferences? _playerPrefs;
   AnimationController? _controller;
 
   @override
   void initState() {
     super.initState();
-    _checkNewDay();
-    _readData();
+    setState(() {
+      UserDataUtil.checkNewDay();
+      UserDataUtil.readUserData();
+    });
   }
 
   @override
@@ -87,32 +76,7 @@ class _CollectorViewState extends State<CollectorView>
   @override
   Widget build(BuildContext context) {
     _storeData = ModalRoute.of(context)?.settings.arguments as StoreData?;
-    _controller = AnimationController(
-        duration: const Duration(milliseconds: 1500),
-        lowerBound: 0.8,
-        upperBound: 1,
-        vsync: this);
-    _controller!.addStatusListener((status) {
-      if (status == AnimationStatus.completed) {
-        //动画从 controller.forward() 正向执行 结束时会回调此方法
-        Future.delayed(Duration(seconds: 1)).then((value) {
-          if (_controller != null) {
-            _controller!.reverse();
-          }
-        });
-        // print("status is completed");
-      } else if (status == AnimationStatus.dismissed) {
-        //动画从 controller.reverse() 反向执行 结束时会回调此方法
-        _controller!.forward();
-        // print("status is dismissed");
-      } else if (status == AnimationStatus.forward) {
-        // print("status is forward");
-        //执行 controller.forward() 会回调此状态
-      } else if (status == AnimationStatus.reverse) {
-        //执行 controller.reverse() 会回调此状态
-        // print("status is reverse");
-      }
-    });
+    _initAnimationController();
 
     return Scaffold(
       body: Stack(
@@ -176,7 +140,7 @@ class _CollectorViewState extends State<CollectorView>
                       padding: EdgeInsets.only(top: 10),
                       child: Column(children: [
                         Text(
-                          "${_todayUserCount.count}",
+                          "${UserDataUtil.todayUserCount.count}",
                           style: TextStyle(
                               color: Color.fromRGBO(255, 214, 0, 1),
                               fontSize: 32,
@@ -236,10 +200,7 @@ class _CollectorViewState extends State<CollectorView>
             TodayUserCount todayUserCount = TodayUserCount.empty;
             todayUserCount.date = "2021-09-22";
             todayUserCount.count = 8;
-            _todayUserCount = todayUserCount;
-            String? countDataString = json.encode(todayUserCount);
-            _playerPrefs?.setString(_dataKeyCount, countDataString);
-            print("<><CollectorView._test>countDataString: $countDataString");
+            UserDataUtil.saveTodayUserCount(todayUserCount: todayUserCount);
           });
         });
   }
@@ -250,13 +211,16 @@ class _CollectorViewState extends State<CollectorView>
             width: 28, height: 28),
         onPressed: () {
           print("同步数据");
-          _syncDataToSever();
+          setState(() {
+            UserDataUtil.syncDataToSever();
+          });
         });
 
     ScaleTransition dynamicButton =
         ScaleTransition(scale: _controller!, child: staticButton);
 
-    if (_userDataList == null || _userDataList!.length < _bufferThreshold) {
+    if (UserDataUtil.userDataList == null ||
+        UserDataUtil.userDataList!.length < _bufferThreshold) {
       return staticButton;
     } else {
       _controller!.forward();
@@ -396,6 +360,35 @@ class _CollectorViewState extends State<CollectorView>
     );
   }
 
+  void _initAnimationController() {
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 1500),
+        lowerBound: 0.8,
+        upperBound: 1,
+        vsync: this);
+    _controller!.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        //动画从 controller.forward() 正向执行 结束时会回调此方法
+        Future.delayed(Duration(seconds: 1)).then((value) {
+          if (_controller != null) {
+            _controller!.reverse();
+          }
+        });
+        // print("status is completed");
+      } else if (status == AnimationStatus.dismissed) {
+        //动画从 controller.reverse() 反向执行 结束时会回调此方法
+        _controller!.forward();
+        // print("status is dismissed");
+      } else if (status == AnimationStatus.forward) {
+        // print("status is forward");
+        //执行 controller.forward() 会回调此状态
+      } else if (status == AnimationStatus.reverse) {
+        //执行 controller.reverse() 会回调此状态
+        // print("status is reverse");
+      }
+    });
+  }
+
   String _getStoreName() {
     final int lengthLimit = 6;
     if (_storeData != null &&
@@ -411,44 +404,14 @@ class _CollectorViewState extends State<CollectorView>
     }
   }
 
-  bool _compareData(DateTime date1, DateTime date2) {
-    DateTime tempDate1 = DateTime(date1.year, date1.month, date1.day);
-    DateTime tempDate2 = DateTime(date2.year, date2.month, date2.day);
-    return tempDate1 == tempDate2;
-  }
-
-  void _checkNewDay() async {
-    _playerPrefs = await SharedPreferences.getInstance();
-    if (_playerPrefs!.containsKey(_dataKeyCount)) {
-      Map map = json.decode(_playerPrefs!.getString(_dataKeyCount)!);
-      _todayUserCount = TodayUserCount.fromJson(map);
-    } else {
-      _todayUserCount = TodayUserCount.empty;
-    }
-
-    if (!_compareData(DateTime.parse(_todayUserCount.date!), DateTime.now())) {
-      _todayUserCount = TodayUserCount.empty;
-      setState(() {
-        String? countDataString = json.encode(_todayUserCount);
-        _playerPrefs?.setString(_dataKeyCount, countDataString);
-      });
-    }
-  }
-
   void _saveData() async {
     _userData.storeId = _storeData?.id;
-    _userData.id = (_todayUserCount.count ?? 0) + 1;
+    _userData.id = (UserDataUtil.todayUserCount.count ?? 0) + 1;
     _userData.setTimestamp();
-    await _saveDataToServer();
-    await _saveDataToFile();
+    await UserDataUtil.saveUserData(_userData);
 
     setState(() {
       //本地记录今日客人数量
-      _checkNewDay();
-      _todayUserCount.count = _todayUserCount.count! + 1;
-      String? countDataString = json.encode(_todayUserCount);
-      _playerPrefs?.setString(_dataKeyCount, countDataString);
-
       _userData = UserData();
       _sexKey.currentState?.refresh();
       _familyKey.currentState?.refresh();
@@ -456,140 +419,5 @@ class _CollectorViewState extends State<CollectorView>
       _expenseKey.currentState?.refresh();
       _tagKey.currentState?.refresh();
     });
-  }
-
-  Future _saveDataToServer() async {
-    try {
-      List<UserData> userDataList = [_userData];
-      Map body = Map();
-      body["list"] = userDataList;
-
-      DioUtils.postHttp(
-        'https://collector.kayou.gululu.com/api/record',
-        parameters: body,
-        onSuccess: (data) {
-          print("<><CollectorView._saveDataToServer>success: $data");
-          _saveDataToBuffer(_isSuccess(data));
-        },
-        onError: (errorText) {
-          print("<><CollectorView._saveDataToServer>error: $errorText");
-          // MessageBox.show("提交数据失败[error]: $errorText");
-          _saveDataToBuffer(false);
-        },
-      );
-    } catch (e) {
-      print("<><CollectorView._saveDataToServer>exception: $e");
-      // MessageBox.show("提交数据失败[exception]: $e");
-      _saveDataToBuffer(false);
-    }
-  }
-
-  Future _saveDataToBuffer(bool uploaded) async {
-    try {
-      if (!uploaded) {
-        //如果当前用户数据未上传成功，则记录到本地
-        if (_userDataList == null) {
-          _userDataList = [];
-        }
-
-        _userDataList!.add(_userData);
-        String userDataString = json.encode(_userDataList);
-        _playerPrefs?.setString(_dataKeyList, userDataString);
-        print("<><CollectorView._saveDataToBuffer>data: $userDataString");
-      }
-    } catch (e) {
-      print("<><CollectorView._saveDataToBuffer>exception: $e");
-      // MessageBox.show("保存本地数据失败[error]: $e");
-    }
-  }
-
-  Future _saveDataToFile() async {
-    if (_userDataList == null) {
-      return null;
-    }
-
-    try {
-      String fileCountent = "";
-      bool fileExisted = await _storage.fileExisted();
-      if (!fileExisted) {
-        fileCountent = "date,time,id,sex,family,age,expense,tag\n";
-      }
-      fileCountent += "${_userData.toString()}\n";
-
-      var result =
-          await _storage.writeData(fileCountent, fileMode: FileMode.append);
-      print("$fileCountent");
-      return result;
-    } catch (e) {
-      print("<><CollectorView._saveDataToFile>exception: $e");
-    }
-  }
-
-  Future _syncDataToSever() async {
-    try {
-      //拷贝数据并清空本地缓存
-      List<UserData> syncDataList = [];
-      syncDataList.addAll(_userDataList!);
-
-      if (syncDataList.length == 0) return;
-      //上传数据
-      Map body = Map();
-      body["list"] = syncDataList;
-
-      DioUtils.postHttp(
-        'https://collector.kayou.gululu.com/api/record',
-        parameters: body,
-        onSuccess: (data) {
-          print("<><CollectorView._syncDataToSever>success: $data");
-          if (_isSuccess(data)) {
-            setState(() {
-              //上传数据成功后，清空本地数据
-              _userDataList!.clear();
-              _playerPrefs?.remove(_dataKeyList);
-            });
-          }
-        },
-        onError: (errorText) {
-          print("<><CollectorView._syncDataToSever>error: $errorText");
-          // MessageBox.show("同步数据失败[error]: $errorText");
-        },
-      );
-    } catch (e) {
-      print("<><CollectorView._syncDataToSever>exception: $e");
-      // MessageBox.show("同步数据失败[exception]: $e");
-    }
-  }
-
-  void _readData() async {
-    _playerPrefs = await SharedPreferences.getInstance();
-    setState(() {
-      _userDataList = [];
-      if (_playerPrefs!.containsKey(_dataKeyList)) {
-        String? dataString = _playerPrefs!.getString(_dataKeyList);
-        List list = json.decode(dataString!);
-        for (var item in list) {
-          UserData userData = UserData.fromJson(item);
-          _userDataList?.add(userData);
-        }
-
-        print(
-            "<><CollectorView._readData>data list length: ${_userDataList?.length}");
-      } else {
-        print("<><CollectorView._readData>can not find the user data locally");
-      }
-    });
-  }
-
-  bool _isSuccess(Object? data) {
-    try {
-      if (data == null) return false;
-      Map map = json.decode(data.toString());
-      bool success =
-          map.containsKey("msg") && map["msg"].toString().toUpperCase() == "OK";
-      return success;
-    } catch (e) {
-      print(e);
-      return false;
-    }
   }
 }

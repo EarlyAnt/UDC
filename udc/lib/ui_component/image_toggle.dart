@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../ui_data.dart';
+import '../data/ui_data.dart';
 
 class ImageToggle extends StatefulWidget {
   final List<ImageButtonData> buttonDatas;

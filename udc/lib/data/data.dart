@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 class Sex {
   static const int MALE = 1; //男
   static const int FEMALE = 2; //女
@@ -134,6 +132,8 @@ class StoreData {
   factory StoreData.fromJson(Map json) {
     return StoreData(json["id"], json["name"]);
   }
+
+  static StoreData get empty => StoreData("00", "未知");
 }
 
 class TodayUserCount {
@@ -189,7 +189,7 @@ class UserData {
 
   @override
   String toString() {
-    return "${time?.substring(0, 10)},${time?.substring(11, 19)},$id,$sex,$family,$age,$expense,$tag";
+    return "${time?.substring(0, 10)},${time?.substring(11, 19)},$storeId,$id,$sex,$family,$age,$expense,$tag}";
   }
 
   Map toJson() {
