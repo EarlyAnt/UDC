@@ -72,7 +72,7 @@ class _SplashScreenViewState extends State<SplashScreenView>
               child: Visibility(
                 visible: _fadeOver,
                 child: Text(
-                  "v2.0.0",
+                  "v2.1.0",
                   style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
                 ),
               ),

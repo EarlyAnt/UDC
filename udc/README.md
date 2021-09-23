@@ -1,16 +1,41 @@
-# udc
+# UDC
+卡游用户数据采集工具。
 
-A new Flutter project.
+# 工具页面
+1.数据查询
+https://collector.kayou.gululu.com/admin/record/
 
-## Getting Started
+2.数据统计
+https://collector.kayou.gululu.com/
 
-This project is a starting point for a Flutter application.
+# 版本历史
 
-A few resources to get you started if this is your first Flutter project:
+->2.1.0    2021-09-23
+1.用户数据编码化。
+2.csv文件中增加“门店名称”列。
+3.门店列表页面上次选中的门店，加上黄色标识。
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+->2.0.0    2021-09-22
+1.还原了点击“提交”按钮时，将数据保存到本地csv文件的功能。
+2.进入页面时就检查本地“今日客人”计数的日期与当前日期是否相同，不相同则计数清零。
+3.标题栏上的门店名字，超过6个字符，显示缩略名字。
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+->1.0.9    2021-09-17
+1.程序启动后，先从服务器获取门店列表，如果失败则从本地加载。
+2.每次提交按钮，将数据保存到服务器。如果保存失败，则记录到本地。
+3.本地只保留未同步的记录，如果超过阈值(测试阶段为2条)，则数据同步按钮变为呼吸灯效果。
+4.点击同步数据按钮，成功上传数据后，清空本地数据。
+
+->1.0.4    2021-08-20
+1.文件只保存在内部目录下。
+
+->1.0.3    2021-08-19
+1.解决了保存csv文件时，偶尔没有换行的问题。
+2.将csv文件备份到android设备根目录的Download/UDC目录下。
+
+->1.0.1    2021-08-18
+1.按照2000*1200分辨率调整了页面布局。
+
+
+
+
