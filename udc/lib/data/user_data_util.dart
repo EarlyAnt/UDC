@@ -9,8 +9,8 @@ import 'data.dart';
 import 'store_data_util.dart';
 
 class UserDataUtil {
-  static String _dataKeyCount = "data_count";
-  static String _dataKeyList = "data_list";
+  static const String _dataKeyCount = "data_count";
+  static const String _dataKeyList = "data_list";
   static Storage _storage = Storage();
   static TodayUserCount _todayUserCount = TodayUserCount.empty;
   static List<UserData>? _userDataList = [];

@@ -7,16 +7,20 @@ import '../ui_component/toast.dart';
 import 'data.dart';
 
 class StoreDataUtil {
-  static String _dataKey = "store_list";
+  static const String _dataKeyStoreList = "store_list";
+  static const String _dataKeySelectedStore = "selected_store";
   static SharedPreferences? _playerPrefs;
   static List<StoreData>? _storeDataList = [];
   static List<StoreData>? get storeDataList => _storeDataList;
+  static String? _selectedStoreId = "";
+  static String? get selectedStoreId => _selectedStoreId;
 
   static Future<bool> loadStoreData() async {
     bool success = await _loadStoreDataFromServer();
     if (!success) {
       success = await _loadStoreDataFromLocal();
     }
+    await _loadSelectedStore();
     return success;
   }
 
@@ -29,6 +33,32 @@ class StoreDataUtil {
         (element) => element.id == storeId,
         orElse: () => StoreData.empty);
     return storeData.name;
+  }
+
+  static Future _loadSelectedStore() async {
+    try {
+      if (_playerPrefs == null) {
+        _playerPrefs = await SharedPreferences.getInstance();
+      }
+
+      _selectedStoreId = _playerPrefs?.getString(_dataKeySelectedStore);
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  static Future setSelectedStore(String storeId) async {
+    try {
+      if (_playerPrefs == null) {
+        _playerPrefs = await SharedPreferences.getInstance();
+      }
+
+      _playerPrefs?.setString(_dataKeySelectedStore, storeId);
+      print("setSelectedStore: $storeId");
+      await _loadSelectedStore();
+    } catch (e) {
+      print(e);
+    }
   }
 
   static Future<bool> _loadStoreDataFromServer() async {
@@ -67,8 +97,8 @@ class StoreDataUtil {
         _playerPrefs = await SharedPreferences.getInstance();
       }
 
-      if (_playerPrefs!.containsKey(_dataKey)) {
-        String? dataString = _playerPrefs!.getString(_dataKey);
+      if (_playerPrefs!.containsKey(_dataKeyStoreList)) {
+        String? dataString = _playerPrefs!.getString(_dataKeyStoreList);
         List list = json.decode(dataString!);
         for (var item in list) {
           StoreData storeData = StoreData.fromJson(item);
@@ -97,7 +127,7 @@ class StoreDataUtil {
       }
 
       String dataString = json.encode(_storeDataList);
-      _playerPrefs?.setString(_dataKey, dataString);
+      _playerPrefs?.setString(_dataKeyStoreList, dataString);
       print("_saveStoreData: $dataString");
     } catch (e) {
       print(e);

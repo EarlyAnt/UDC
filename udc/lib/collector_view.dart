@@ -60,10 +60,7 @@ class _CollectorViewState extends State<CollectorView>
   @override
   void initState() {
     super.initState();
-    setState(() {
-      UserDataUtil.checkNewDay();
-      UserDataUtil.readUserData();
-    });
+    _initialize();
   }
 
   @override
@@ -358,6 +355,12 @@ class _CollectorViewState extends State<CollectorView>
         _saveData();
       }),
     );
+  }
+
+  void _initialize() async {
+    await UserDataUtil.checkNewDay();
+    await UserDataUtil.readUserData();
+    setState(() {});
   }
 
   void _initAnimationController() {

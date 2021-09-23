@@ -77,6 +77,8 @@ class _StoreListViewState extends State<StoreListView> {
   }
 
   Widget _storeButton(StoreData? storeData) {
+    bool isSelectedStore = StoreDataUtil.selectedStoreId == storeData!.id;
+
     return TextButton(
         style: ButtonStyle(
           //圆角
@@ -84,20 +86,33 @@ class _StoreListViewState extends State<StoreListView> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
           //边框
           side: MaterialStateProperty.all(
-            BorderSide(color: Color.fromRGBO(183, 183, 183, 1), width: 2),
+            BorderSide(
+                color: isSelectedStore
+                    ? Color.fromRGBO(225, 184, 0, 1)
+                    : Color.fromRGBO(183, 183, 183, 1),
+                width: 2),
           ),
           //背景
-          // backgroundColor: MaterialStateProperty.all(Colors.lightBlueAccent),
+          backgroundColor: MaterialStateProperty.all(isSelectedStore
+              ? Color.fromRGBO(255, 214, 0, 1)
+              : Colors.transparent),
         ),
-        child: Text(storeData?.name ?? "",
-            style: TextStyle(color: Colors.black, fontSize: 20)),
+        child: Text(storeData.name ?? "",
+            style: TextStyle(
+                color: isSelectedStore ? Colors.white : Colors.black,
+                fontWeight:
+                    isSelectedStore ? FontWeight.bold : FontWeight.normal,
+                fontSize: isSelectedStore ? 18 : 16)),
         onPressed: () {
-          print("selected store: ${storeData?.id}, ${storeData?.name}");
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (subContext) {
-                return CollectorView();
-              },
-              settings: RouteSettings(arguments: storeData)));
+          print("selected store: ${storeData.id}, ${storeData.name}");
+          setState(() {
+            StoreDataUtil.setSelectedStore(storeData.id!);
+            Navigator.of(context).push(MaterialPageRoute(
+                builder: (subContext) {
+                  return CollectorView();
+                },
+                settings: RouteSettings(arguments: storeData)));
+          });
         });
   }
 
