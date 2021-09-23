@@ -1,17 +1,17 @@
 abstract class BaseButtonData {
-  String value;
+  int value;
+  String text;
   bool placeholder;
-  BaseButtonData(this.value, this.placeholder);
+  BaseButtonData(this.value, this.text, this.placeholder);
 }
 
 class TextButtonData extends BaseButtonData {
-  String text;
-  TextButtonData(value, this.text, {placeholder = false})
-      : super(value, placeholder);
+  TextButtonData(value, text, {placeholder = false})
+      : super(value, text, placeholder);
 }
 
 class ImageButtonData extends BaseButtonData {
   String imagPath;
-  ImageButtonData(value, this.imagPath, {placeholder = false})
-      : super(value, placeholder);
+  ImageButtonData(value, text, this.imagPath, {placeholder = false})
+      : super(value, text, placeholder);
 }

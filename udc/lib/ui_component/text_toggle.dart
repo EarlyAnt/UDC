@@ -12,7 +12,7 @@ class TextToggle extends StatefulWidget {
   final MainAxisSize mainAxisSize;
   final MainAxisAlignment mainAxisAlignment;
   final int defaultItemIndex;
-  final Function(String) onValueChanged;
+  final Function(int) onValueChanged;
 
   TextToggle(this.buttonDatas, this.buttonWidth, this.buttonHeight,
       this.onValueChanged,
@@ -30,7 +30,7 @@ class TextToggle extends StatefulWidget {
 }
 
 class TextToggleState extends State<TextToggle> {
-  String? _selectedValue;
+  int? _selectedValue;
 
   @override
   void initState() {
@@ -62,7 +62,7 @@ class TextToggleState extends State<TextToggle> {
     );
   }
 
-  void _onButtonPressed(String value) {
+  void _onButtonPressed(int value) {
     setState(() {
       _selectedValue = value;
       _onValueChanged();
@@ -71,7 +71,7 @@ class TextToggleState extends State<TextToggle> {
   }
 
   void _onValueChanged() {
-    if (_selectedValue != null && _selectedValue!.trim().isNotEmpty) {
+    if (_selectedValue != null) {
       widget.onValueChanged(_selectedValue!);
     }
   }
@@ -81,20 +81,20 @@ class TextToggleState extends State<TextToggle> {
             widget.defaultItemIndex >= 0 &&
             widget.defaultItemIndex < widget.buttonDatas.length
         ? widget.buttonDatas[widget.defaultItemIndex].value
-        : "";
+        : 0;
     _onValueChanged();
   }
 }
 
 class TExtButton extends StatelessWidget {
-  final String value;
+  final int value;
   final String text;
   final String iconName;
   final double width;
   final double height;
   final double unselectedWidthDiff;
   final double unselectedHeightDiff;
-  final Function(String) onPressed;
+  final Function(int) onPressed;
   final bool selected;
 
   const TExtButton(

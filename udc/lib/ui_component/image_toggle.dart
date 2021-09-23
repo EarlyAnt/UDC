@@ -12,7 +12,7 @@ class ImageToggle extends StatefulWidget {
   final MainAxisSize mainAxisSize;
   final MainAxisAlignment mainAxisAlignment;
   final int defaultItemIndex;
-  final Function(String) onValueChanged;
+  final Function(int) onValueChanged;
 
   ImageToggle(this.buttonDatas, this.buttonWidth, this.buttonHeight,
       this.onValueChanged,
@@ -30,7 +30,7 @@ class ImageToggle extends StatefulWidget {
 }
 
 class ImageToggleState extends State<ImageToggle> {
-  String? _selectedValue;
+  int? _selectedValue;
 
   @override
   void initState() {
@@ -48,6 +48,7 @@ class ImageToggleState extends State<ImageToggle> {
             .map((e) => Row(children: [
                   ImageButton(
                     e.value,
+                    e.text,
                     e.imagPath,
                     e.value == _selectedValue,
                     _onButtonPressed,
@@ -66,7 +67,7 @@ class ImageToggleState extends State<ImageToggle> {
     );
   }
 
-  void _onButtonPressed(String value) {
+  void _onButtonPressed(int value) {
     setState(() {
       _selectedValue = value;
       _onValueChanged();
@@ -75,7 +76,7 @@ class ImageToggleState extends State<ImageToggle> {
   }
 
   void _onValueChanged() {
-    if (_selectedValue != null && _selectedValue!.trim().isNotEmpty) {
+    if (_selectedValue != null) {
       widget.onValueChanged(_selectedValue!);
     }
   }
@@ -85,22 +86,24 @@ class ImageToggleState extends State<ImageToggle> {
             widget.defaultItemIndex >= 0 &&
             widget.defaultItemIndex < widget.buttonDatas.length
         ? widget.buttonDatas[widget.defaultItemIndex].value
-        : "";
+        : 0;
     _onValueChanged();
   }
 }
 
 class ImageButton extends StatelessWidget {
-  final String value;
+  final int value;
+  final String text;
   final String iconName;
   final double width;
   final double height;
   final double unselectedWidthDiff;
   final double unselectedHeightDiff;
-  final Function(String) onPressed;
+  final Function(int) onPressed;
   final bool selected;
 
-  const ImageButton(this.value, this.iconName, this.selected, this.onPressed,
+  const ImageButton(
+      this.value, this.text, this.iconName, this.selected, this.onPressed,
       {Key? key,
       this.width = 150,
       this.height = 45,

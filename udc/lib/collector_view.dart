@@ -21,32 +21,36 @@ class CollectorView extends StatefulWidget {
 class _CollectorViewState extends State<CollectorView>
     with TickerProviderStateMixin {
   final List<ImageButtonData> _sexOptions = [
-    ImageButtonData("男", "male"),
-    ImageButtonData("女", "female")
+    ImageButtonData(Sex.MALE, Sex.getText(Sex.MALE), "male"),
+    ImageButtonData(Sex.FEMALE, Sex.getText(Sex.FEMALE), "female")
   ];
   final List<ImageButtonData> _familyOptions = [
-    ImageButtonData("1人", "one_person"),
-    ImageButtonData("母子", "mother_son"),
-    ImageButtonData("父子", "father_son"),
-    ImageButtonData("3+", "more")
+    ImageButtonData(
+        Family.ONE_PERSON, Family.getText(Family.ONE_PERSON), "one_person"),
+    ImageButtonData(
+        Family.MOTHER_SON, Family.getText(Family.MOTHER_SON), "mother_son"),
+    ImageButtonData(
+        Family.FATHER_SON, Family.getText(Family.FATHER_SON), "father_son"),
+    ImageButtonData(
+        Family.THREE_PLUS, Family.getText(Family.THREE_PLUS), "more")
   ];
   final List<TextButtonData> _ageOptions = [
-    TextButtonData("3-6岁", "3-6岁"),
-    TextButtonData("7-14岁", "7-14岁"),
-    TextButtonData("15岁+", "15岁+"),
-    TextButtonData("", "", placeholder: true)
+    TextButtonData(Age.A_3_6, Age.getText(Age.A_3_6)),
+    TextButtonData(Age.A_7_14, Age.getText(Age.A_7_14)),
+    TextButtonData(Age.A_15_PLUS, Age.getText(Age.A_15_PLUS)),
+    TextButtonData(0, "", placeholder: true)
   ];
   final List<TextButtonData> _expenseOptions = [
-    TextButtonData("1-50", "1-50"),
-    TextButtonData("51-100", "51-100"),
-    TextButtonData("101-200", "101-200"),
-    TextButtonData("200+", "200+")
+    TextButtonData(Expense.E_1_50, Expense.getText(Expense.E_1_50)),
+    TextButtonData(Expense.E_51_100, Expense.getText(Expense.E_51_100)),
+    TextButtonData(Expense.E_101_200, Expense.getText(Expense.E_101_200)),
+    TextButtonData(Expense.E_201_PLUS, Expense.getText(Expense.E_201_PLUS))
   ];
   final List<TextButtonData> _tagOptions = [
-    TextButtonData("A", "A"),
-    TextButtonData("B", "B"),
-    TextButtonData("C", "C"),
-    TextButtonData("D", "D")
+    TextButtonData(Tag.A, Tag.getText(Tag.A)),
+    TextButtonData(Tag.B, Tag.getText(Tag.B)),
+    TextButtonData(Tag.C, Tag.getText(Tag.C)),
+    TextButtonData(Tag.D, Tag.getText(Tag.D))
   ];
   final GlobalKey<ImageToggleState> _sexKey = GlobalKey();
   final GlobalKey<ImageToggleState> _familyKey = GlobalKey();
